@@ -150,10 +150,9 @@ fun HomeScreen(
             }
         }
         SelectedEditedPhotoSection(
-            modifier = Modifier.fillMaxSize(),
             onUnSelectedEditedPhoto = {
                 viewModel.onAction(HomeAction.OnEditedPhotoSelected(null))
-            },
+            }, modifier = Modifier.fillMaxSize(),
             selectedEditedPhoto = state.selectedEditedPhoto,
             sharedTransitionScope = sharedTransitionScope,
             animatedVisibilityScope = animatedVisibilityScope

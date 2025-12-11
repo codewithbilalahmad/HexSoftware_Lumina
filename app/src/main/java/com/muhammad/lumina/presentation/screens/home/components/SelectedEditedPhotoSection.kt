@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -24,7 +23,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -38,8 +36,8 @@ import com.muhammad.lumina.utils.rippleClickable
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SelectedEditedPhotoSection(
-    modifier: Modifier = Modifier,
     selectedEditedPhoto: EditedPhoto?,
+    modifier: Modifier = Modifier,
     onUnSelectedEditedPhoto: () -> Unit,
     animatedVisibilityScope: AnimatedVisibilityScope,
     sharedTransitionScope: SharedTransitionScope,
@@ -50,8 +48,7 @@ fun SelectedEditedPhotoSection(
     }
     Column(
         modifier = modifier
-            .fillMaxSize()
-            .background(Color(0x3A000000))
+            .background(Color.Black.copy(alpha = 0.7f))
             .rippleClickable {
                 onUnSelectedEditedPhoto()
             },
@@ -87,7 +84,6 @@ fun SelectedEditedPhotoSection(
                     bitmap = bit.asImageBitmap(),
                     contentDescription = null,
                     modifier = Modifier
-                        .clip(RoundedCornerShape(16.dp))
                         .fillMaxWidth()
                         .heightIn(max = 500.dp)
                         .sharedBounds(
