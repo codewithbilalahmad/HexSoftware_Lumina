@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">Lumina</string>
+    <string name="best_photo_editor">Best Photo Editor</string>
+    <string name="app_description">Edit your photos with ease using our simple and powerful photo editor.  Adjust brightness, contrast,and saturation, rotate or flip images,  and save your beautifully edited photos directly to your gallery.</string>
+    <string name="pick_photo_to_edit">Pick an photo from your gallery to begin editing.</string>
+    <string name="choose_photo">Choose Photo</string>
+    <string name="edit_photo">Edit Photo</string>
+    <string name="adjust_brightness">Adjust Brightness</string>
+    <string name="adjust_brightness_desp">Fine-tune the brightness to get perfect lighting and make your photo shine and perfect.</string>
+    <string name="adjust_contrast">Adjust Contrast</string>
+    <string name="adjust_saturation">Adjust Saturation</string>
+    <string name="adjust_contrast_desp">Make your photo clearer and more defined by adjusting its contrast to bring out every detail.</string>
+    <string name="adjust_saturation_desp">Enhance or tone down the colors in your photo by adjusting the saturation to make it look just right.</string>
+    <string name="rotate_photo">Rotate Image</string>
+    <string name="rotate_photo_desp">Easily rotate your photo to get the perfect angle and make sure it looks just right.</string>
+    <string name="flip_photo">Flip Image</string>
+    <string name="flip_photo_desp">Flip your photo horizontally or vertically to create a fun or perfectly balanced look.</string>
+    <string name="features">Features</string>
+    <string name="brightness">Brightness</string>
+    <string name="contrast">Contrast</string>
+    <string name="saturation">Saturation</string>
+    <string name="rotate">Rotate</string>
+    <string name="horizontal">Horizontal</string>
+    <string name="vertical">Vertical</string>
+    <string name="save_photo">Save Photo</string>
+    <string name="save_photo_in_gallery_desp">Keep your beautifully edited photos safe by saving them directly to your gallery.</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="reset">Reset</string>
+    <string name="exit_editing">Exit Editing</string>
+    <string name="exit">Exit</string>
+    <string name="exit_editing_desp">Exit editing and head back to your photo. Don’t worry, you can edit again anytime!</string>
+    <string name="edited_photos">Edited Photos</string>
+</resources>
