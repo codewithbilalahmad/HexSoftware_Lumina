@@ -218,7 +218,7 @@ class EditPhotoViewModel(
     private fun onSetSaturation(value: Float) {
         val prev = _state.value.saturation
         editHistoryManager.push(
-            EditAction.Contrast(
+            EditAction.Saturation(
                 previous = prev,
                 current = value
             )

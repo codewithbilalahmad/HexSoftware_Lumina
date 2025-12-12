@@ -54,7 +54,7 @@ fun PhotoFilterItem(
         Column(
             modifier = modifier,
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(4.dp)
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             Box(modifier = modifier
                 .size(80.dp)
