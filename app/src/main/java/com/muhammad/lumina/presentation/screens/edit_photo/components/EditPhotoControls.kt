@@ -1,5 +1,6 @@
 package com.muhammad.lumina.presentation.screens.edit_photo.components
 
+import android.graphics.Bitmap
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -25,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.muhammad.lumina.domain.model.EditPhotoFeature
+import com.muhammad.lumina.domain.model.PhotoFilter
 import com.muhammad.lumina.presentation.components.AppSlider
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -33,8 +35,8 @@ fun EditPhotoControls(
     modifier: Modifier = Modifier,
     brightness: Float,
     contrast: Float,
-    saturation: Float,
-    onBrightnessChange: (Float) -> Unit,
+    saturation: Float, originalBitmap: Bitmap?, selectedPhotoFilter: PhotoFilter,
+    onBrightnessChange: (Float) -> Unit, onPhotoFilterSelected: (PhotoFilter) -> Unit,
     onContrastChange: (Float) -> Unit,
     onSaturationChange: (Float) -> Unit,
     onSelectFeature: (EditPhotoFeature) -> Unit,
@@ -50,7 +52,8 @@ fun EditPhotoControls(
             selectedFeature != null && selectedFeature in listOf(
                 EditPhotoFeature.Brightness,
                 EditPhotoFeature.Contrast,
-                EditPhotoFeature.Saturation
+                EditPhotoFeature.Saturation,
+                EditPhotoFeature.Filters
             ),
             enter = slideInVertically(animationSpec = MaterialTheme.motionScheme.slowEffectsSpec()) { -it } + expandVertically(
                 animationSpec = MaterialTheme.motionScheme.slowEffectsSpec()
@@ -105,6 +108,7 @@ fun EditPhotoControls(
                                 onContrastChange(newValue)
                             }, modifier = Modifier.fillMaxWidth(), valueRange = 0f..2f)
                         }
+
                         EditPhotoFeature.Saturation -> {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
@@ -123,6 +127,24 @@ fun EditPhotoControls(
                                 onSaturationChange(newValue)
                             }, modifier = Modifier.fillMaxWidth(), valueRange = 0f..2f)
                         }
+
+                        EditPhotoFeature.Filters -> {
+                            LazyRow(
+                                modifier = Modifier.fillMaxWidth(),
+                                contentPadding = PaddingValues(8.dp),
+                                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                            ) {
+                                items(PhotoFilter.entries, key = { it.ordinal }) { filter ->
+                                    val isSelected = filter == selectedPhotoFilter
+                                    PhotoFilterItem(
+                                        photoFilter = filter,
+                                        onPhotoFilterSelected = onPhotoFilterSelected,
+                                        isSelected = isSelected, originalBitmap = originalBitmap
+                                    )
+                                }
+                            }
+                        }
+
                         else -> Unit
                     }
                 }

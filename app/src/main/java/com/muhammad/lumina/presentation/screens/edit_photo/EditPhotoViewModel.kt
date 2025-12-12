@@ -4,7 +4,9 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.muhammad.lumina.data.EditHistoryManager
 import com.muhammad.lumina.domain.model.EditPhotoFeature
+import com.muhammad.lumina.domain.model.PhotoFilter
 import com.muhammad.lumina.domain.repository.ImageUtilsRepository
 import com.muhammad.lumina.presentation.navigation.Destinations
 import com.muhammad.lumina.utils.SnackbarEvent
@@ -19,6 +21,7 @@ import kotlin.Float
 
 class EditPhotoViewModel(
     savedStateHandle: SavedStateHandle,
+    private val editHistoryManager: EditHistoryManager,
     private val imageUtilsRepository: ImageUtilsRepository,
 ) : ViewModel() {
 
@@ -30,9 +33,11 @@ class EditPhotoViewModel(
     val snackbarEvents = _snackbarEvents.receiveAsFlow()
     private val _events = Channel<EditPhotoEvents>()
     val events = _events.receiveAsFlow()
+
     init {
         onAction(EditPhotoAction.OnLoadEditPhoto(photo))
     }
+
     fun onAction(action: EditPhotoAction) {
         when (action) {
             is EditPhotoAction.OnLoadEditPhoto -> onLoadEditPhoto(action.photo)
@@ -48,19 +53,32 @@ class EditPhotoViewModel(
             EditPhotoAction.OnSaveImageToGallery -> onSaveImageToGallery()
             EditPhotoAction.OnConfirmExitEditing -> onConfirmExitEditing()
             EditPhotoAction.OnToggleExitEditingDialog -> onToggleExitEditingDialog()
+            is EditPhotoAction.OnSetPhotoFilter -> onSetPhotoFilter(action.filter)
         }
+    }
+
+    private fun onSetPhotoFilter(filter: PhotoFilter) {
+        editHistoryManager.push(
+            EditAction.FilterApplied(
+                previous = state.value.selectedPhotoFilter,
+                current = filter
+            )
+        )
+        _state.update { it.copy(selectedPhotoFilter = filter) }
+        applyAllEdits()
     }
 
     private fun onToggleExitEditingDialog() {
         _state.update { it.copy(showExitEditingDialog = !it.showExitEditingDialog) }
     }
 
-    private fun onConfirmExitEditing(){
+    private fun onConfirmExitEditing() {
         viewModelScope.launch {
             _state.update { it.copy(showExitEditingDialog = false) }
             _events.send(EditPhotoEvents.OnNavigateUp)
         }
     }
+
     private fun onSaveImageToGallery() {
         viewModelScope.launch {
             val editedBitmap = _state.value.editedBitmap ?: return@launch
@@ -95,31 +113,52 @@ class EditPhotoViewModel(
     }
 
     private fun onRotate(degrees: Float) {
+        editHistoryManager.push(EditAction.Rotation(previous = _state.value.rotation, degrees = degrees))
         _state.update { it.copy(rotation = (state.value.rotation + degrees) % 360f) }
         applyAllEdits()
     }
 
     private fun onSetBrightness(value: Float) {
+        editHistoryManager.push(
+            EditAction.Brightness(
+                previous = _state.value.brightness,
+                current = value
+            )
+        )
         _state.update { it.copy(brightness = value) }
         applyAllEdits()
     }
 
     private fun onSetContrast(value: Float) {
+        editHistoryManager.push(
+            EditAction.Contrast(
+                previous = _state.value.contrast,
+                current = value
+            )
+        )
         _state.update { it.copy(contrast = value) }
         applyAllEdits()
     }
 
     private fun onSetSaturation(value: Float) {
+        editHistoryManager.push(
+            EditAction.Contrast(
+                previous = _state.value.saturation,
+                current = value
+            )
+        )
         _state.update { it.copy(saturation = value) }
         applyAllEdits()
     }
 
     private fun onToggleFlipHorizontal() {
+        editHistoryManager.push(EditAction.FlipHorizontal(state.value.flipHorizontal))
         _state.update { it.copy(flipHorizontal = !state.value.flipHorizontal) }
         applyAllEdits()
     }
 
     private fun onToggleFlipVertical() {
+        editHistoryManager.push(EditAction.FlipVertical(state.value.flipVertical))
         _state.update { it.copy(flipVertical = !state.value.flipVertical) }
         applyAllEdits()
     }
@@ -161,7 +200,7 @@ class EditPhotoViewModel(
             saturation = state.saturation,
             rotation = state.rotation,
             flipVertical = state.flipVertical,
-            flipHorizontal = state.flipHorizontal
+            flipHorizontal = state.flipHorizontal, filter = state.selectedPhotoFilter
         )
 
         _state.update { it.copy(editedBitmap = edited) }

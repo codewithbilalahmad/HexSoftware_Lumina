@@ -1,6 +1,7 @@
 package com.muhammad.lumina.presentation.screens.edit_photo
 
 import com.muhammad.lumina.domain.model.EditPhotoFeature
+import com.muhammad.lumina.domain.model.PhotoFilter
 
 sealed interface EditPhotoAction{
     data class OnLoadEditPhoto(val photo : String) : EditPhotoAction
@@ -16,4 +17,5 @@ sealed interface EditPhotoAction{
     data object OnSaveImageToGallery : EditPhotoAction
     data object OnToggleExitEditingDialog : EditPhotoAction
     data object OnConfirmExitEditing: EditPhotoAction
+    data class OnSetPhotoFilter(val filter: PhotoFilter) : EditPhotoAction
 }

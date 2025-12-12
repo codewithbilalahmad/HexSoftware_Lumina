@@ -2,10 +2,12 @@ package com.muhammad.lumina.presentation.screens.edit_photo
 
 import android.graphics.Bitmap
 import com.muhammad.lumina.domain.model.EditPhotoFeature
+import com.muhammad.lumina.domain.model.PhotoFilter
 
 data class EditPhotoState(
     val originalBitmap: Bitmap? = null,
     val editedBitmap: Bitmap? = null,
+    val selectedPhotoFilter : PhotoFilter = PhotoFilter.NORMAL,
     val showSaveImageToGalleryDialog : Boolean = false,
     val showExitEditingDialog : Boolean = false,
     val selectedFeature: EditPhotoFeature?=null,

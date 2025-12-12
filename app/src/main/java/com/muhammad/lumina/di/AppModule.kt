@@ -1,6 +1,7 @@
 package com.muhammad.lumina.di
 
 import com.muhammad.lumina.LuminaApplication
+import com.muhammad.lumina.data.EditHistoryManager
 import com.muhammad.lumina.data.ImageUtilsRepositoryImp
 import com.muhammad.lumina.domain.repository.ImageUtilsRepository
 import com.muhammad.lumina.presentation.screens.edit_photo.EditPhotoViewModel
@@ -14,6 +15,7 @@ val appModule = module {
     single {
         get<LuminaApplication>().applicationScope
     }
+    single { EditHistoryManager() }
     single { ImageUtilsRepositoryImp(get(),get()) }.bind<ImageUtilsRepository>()
     viewModelOf(::HomeViewModel)
     viewModelOf(::EditPhotoViewModel)

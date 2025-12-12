@@ -153,7 +153,9 @@ fun EditPhotoScreen(
                 onBrightnessChange = { newValue ->
                     viewModel.onAction(EditPhotoAction.OnSetBrightness(newValue))
                 },
-                selectedFeature = state.selectedFeature
+                selectedFeature = state.selectedFeature, selectedPhotoFilter = state.selectedPhotoFilter, onPhotoFilterSelected = {filter ->
+                    viewModel.onAction(EditPhotoAction.OnSetPhotoFilter(filter))
+                }, originalBitmap = state.originalBitmap
             )
         }) { paddingValues ->
             Box(
