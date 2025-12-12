@@ -54,13 +54,85 @@ class EditPhotoViewModel(
             EditPhotoAction.OnConfirmExitEditing -> onConfirmExitEditing()
             EditPhotoAction.OnToggleExitEditingDialog -> onToggleExitEditingDialog()
             is EditPhotoAction.OnSetPhotoFilter -> onSetPhotoFilter(action.filter)
+            EditPhotoAction.OnRedoEdit -> onRedoEdit()
+            EditPhotoAction.OnUndoEdit -> onUndoEdit()
         }
     }
 
+    private fun onUndoEdit() {
+        val action = editHistoryManager.undo() ?: return
+        when (action) {
+            is EditAction.Brightness -> {
+                _state.update { it.copy(brightness = action.previous) }
+            }
+
+            is EditAction.Contrast -> {
+                _state.update { it.copy(contrast = action.previous) }
+            }
+
+            is EditAction.FilterApplied -> {
+                _state.update { it.copy(selectedPhotoFilter = action.previous) }
+            }
+
+            is EditAction.FlipHorizontal -> {
+                _state.update { it.copy(flipHorizontal = action.flipped) }
+            }
+
+            is EditAction.FlipVertical -> {
+                _state.update { it.copy(flipVertical = action.flipped) }
+            }
+
+            is EditAction.Rotation -> {
+                _state.update { it.copy(rotation = action.previous % 360f) }
+            }
+
+            is EditAction.Saturation -> {
+                _state.update { it.copy(saturation = action.previous) }
+            }
+        }
+        applyAllEdits()
+    }
+
+    private fun onRedoEdit() {
+        val action = editHistoryManager.redo() ?: return
+        when (action) {
+            is EditAction.Brightness -> {
+                _state.update { it.copy(brightness = action.current) }
+            }
+
+            is EditAction.Contrast -> {
+                _state.update { it.copy(contrast = action.current) }
+            }
+
+            is EditAction.FilterApplied -> {
+                _state.update { it.copy(selectedPhotoFilter = action.previous) }
+            }
+
+            is EditAction.FlipHorizontal -> {
+                _state.update { it.copy(flipHorizontal = !action.flipped) }
+            }
+
+            is EditAction.FlipVertical -> {
+                _state.update { it.copy(flipVertical = !action.flipped) }
+            }
+
+            is EditAction.Rotation -> {
+                val newRotation = (action.previous + action.degrees) % 360f
+                _state.update { it.copy(rotation = newRotation) }
+            }
+
+            is EditAction.Saturation -> {
+                _state.update { it.copy(saturation = action.current) }
+            }
+        }
+        applyAllEdits()
+    }
+
     private fun onSetPhotoFilter(filter: PhotoFilter) {
+        val prev = _state.value.selectedPhotoFilter
         editHistoryManager.push(
             EditAction.FilterApplied(
-                previous = state.value.selectedPhotoFilter,
+                previous = prev,
                 current = filter
             )
         )
@@ -113,15 +185,17 @@ class EditPhotoViewModel(
     }
 
     private fun onRotate(degrees: Float) {
-        editHistoryManager.push(EditAction.Rotation(previous = _state.value.rotation, degrees = degrees))
-        _state.update { it.copy(rotation = (state.value.rotation + degrees) % 360f) }
+        val prev = _state.value.rotation
+        editHistoryManager.push(EditAction.Rotation(previous = prev, degrees = degrees))
+        _state.update { it.copy(rotation = (prev + degrees) % 360f) }
         applyAllEdits()
     }
 
     private fun onSetBrightness(value: Float) {
+        val prev = _state.value.brightness
         editHistoryManager.push(
             EditAction.Brightness(
-                previous = _state.value.brightness,
+                previous = prev,
                 current = value
             )
         )
@@ -130,9 +204,10 @@ class EditPhotoViewModel(
     }
 
     private fun onSetContrast(value: Float) {
+        val prev = _state.value.contrast
         editHistoryManager.push(
             EditAction.Contrast(
-                previous = _state.value.contrast,
+                previous = prev,
                 current = value
             )
         )
@@ -141,9 +216,10 @@ class EditPhotoViewModel(
     }
 
     private fun onSetSaturation(value: Float) {
+        val prev = _state.value.saturation
         editHistoryManager.push(
             EditAction.Contrast(
-                previous = _state.value.saturation,
+                previous = prev,
                 current = value
             )
         )
@@ -152,18 +228,33 @@ class EditPhotoViewModel(
     }
 
     private fun onToggleFlipHorizontal() {
-        editHistoryManager.push(EditAction.FlipHorizontal(state.value.flipHorizontal))
-        _state.update { it.copy(flipHorizontal = !state.value.flipHorizontal) }
+        val prev = _state.value.flipHorizontal
+        editHistoryManager.push(EditAction.FlipHorizontal(prev))
+        _state.update { it.copy(flipHorizontal = !prev) }
         applyAllEdits()
     }
 
     private fun onToggleFlipVertical() {
-        editHistoryManager.push(EditAction.FlipVertical(state.value.flipVertical))
-        _state.update { it.copy(flipVertical = !state.value.flipVertical) }
+        val prev = _state.value.flipVertical
+        editHistoryManager.push(EditAction.FlipVertical(prev))
+        _state.update { it.copy(flipVertical = prev) }
         applyAllEdits()
     }
 
     private fun onResetAllEdits() {
+        val current = _state.value
+        editHistoryManager.push(EditAction.Brightness(previous = current.brightness, current = 0f))
+        editHistoryManager.push(EditAction.Contrast(previous = current.contrast, current = 1f))
+        editHistoryManager.push(EditAction.Saturation(previous = current.saturation, current = 1f))
+        editHistoryManager.push(EditAction.Rotation(previous = current.rotation, degrees = 0f))
+        editHistoryManager.push(EditAction.FlipHorizontal(flipped = current.flipHorizontal))
+        editHistoryManager.push(EditAction.FlipVertical(flipped = current.flipVertical))
+        editHistoryManager.push(
+            EditAction.FilterApplied(
+                previous = current.selectedPhotoFilter,
+                current = PhotoFilter.NORMAL
+            )
+        )
         _state.update {
             it.copy(
                 brightness = 0f,
@@ -177,7 +268,11 @@ class EditPhotoViewModel(
         applyAllEdits()
     }
 
+    fun canUndo(): Boolean = editHistoryManager.canUndo()
+    fun canRedo(): Boolean = editHistoryManager.canRedo()
+
     private fun onLoadEditPhoto(photo: String) {
+        editHistoryManager.clear()
         val original = decodeBitmapFromPath(photo) ?: return
         _state.update {
             it.copy(

@@ -18,4 +18,6 @@ sealed interface EditPhotoAction{
     data object OnToggleExitEditingDialog : EditPhotoAction
     data object OnConfirmExitEditing: EditPhotoAction
     data class OnSetPhotoFilter(val filter: PhotoFilter) : EditPhotoAction
+    data object OnUndoEdit : EditPhotoAction
+    data object OnRedoEdit : EditPhotoAction
 }

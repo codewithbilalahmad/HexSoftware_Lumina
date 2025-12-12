@@ -21,7 +21,7 @@ class EditHistoryManager {
         return action
     }
     fun canUndo() = undoStack.isNotEmpty()
-    fun canRedo() = undoStack.isNotEmpty()
+    fun canRedo() = redoStack.isNotEmpty()
     fun clear(){
         undoStack.clear()
         redoStack.clear()
