@@ -2,6 +2,12 @@ package com.muhammad.lumina.presentation.screens.edit_photo
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutLinearInEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Image
@@ -28,29 +34,39 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.drawWithCache
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.toSize
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.muhammad.lumina.R
 import com.muhammad.lumina.domain.model.EditPhotoFeature
+import com.muhammad.lumina.domain.model.PhotoFilter
 import com.muhammad.lumina.presentation.components.AppAlertDialog
 import com.muhammad.lumina.presentation.components.TransparentGridBackground
 import com.muhammad.lumina.presentation.screens.edit_photo.components.EditPhotoControls
 import com.muhammad.lumina.utils.ObserveAsEvents
 import com.muhammad.lumina.utils.SnackbarEvent
+import com.muhammad.lumina.utils.createBeautifulGradient
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
@@ -60,8 +76,12 @@ fun EditPhotoScreen(
     navHostController: NavHostController,
     viewModel: EditPhotoViewModel = koinViewModel(),
 ) {
+    val density = LocalDensity.current
+    val infiniteTransition = rememberInfiniteTransition()
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    var editPhotoWidth by remember { mutableStateOf(0.dp) }
+    var editPhotoHeight by remember { mutableStateOf(0.dp) }
     val scope = rememberCoroutineScope()
     BackHandler {
         viewModel.onAction(EditPhotoAction.OnToggleExitEditingDialog)
@@ -181,13 +201,66 @@ fun EditPhotoScreen(
                     .align(Alignment.Center)
             ) {
                 state.editedBitmap?.let { bitmap ->
+                    val sparkleRotation by infiniteTransition.animateFloat(
+                        initialValue = 0f, targetValue = 720f, animationSpec = infiniteRepeatable(
+                            animation = tween(
+                                durationMillis = 1500,
+                                easing = FastOutLinearInEasing
+                            ), repeatMode = RepeatMode.Reverse
+                        ), label = "sparkleRotation"
+                    )
                     Image(
                         bitmap = bitmap.asImageBitmap(),
                         contentDescription = null,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .onSizeChanged { size ->
+                                editPhotoWidth = with(density) {
+                                    size.width.toDp()
+                                }
+                                editPhotoHeight = with(density) {
+                                    size.height.toDp()
+                                }
+                            }
                     )
+                    AnimatedVisibility(
+                        visible = state.selectedPhotoFilter != PhotoFilter.NORMAL,
+                        enter = scaleIn(MaterialTheme.motionScheme.slowEffectsSpec()),
+                        exit = scaleOut(MaterialTheme.motionScheme.slowEffectsSpec()),
+                    ) {
+                        Box(
+                            modifier = Modifier.size(
+                                width = editPhotoWidth,
+                                height = editPhotoHeight
+                            ).clipToBounds()
+                        ) {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(R.drawable.ic_sparkle),
+                                contentDescription = null, tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(16.dp)
+                                    .size(24.dp)
+                                    .graphicsLayer {
+                                        rotationZ = sparkleRotation
+                                    }
+                            )
+                            Icon(
+                                imageVector = ImageVector.vectorResource(R.drawable.ic_sparkle),
+                                contentDescription = null, tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier
+                                    .padding(16.dp)
+                                    .align(Alignment.BottomStart)
+                                    .size(30.dp)
+                                    .graphicsLayer {
+                                        rotationZ = sparkleRotation
+                                    }
+                            )
+                        }
+                    }
                 }
             }
+
             AnimatedVisibility(
                 visible = state.editedBitmap != null,
                 enter = scaleIn(MaterialTheme.motionScheme.slowEffectsSpec()),
