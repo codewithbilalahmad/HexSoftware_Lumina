@@ -83,11 +83,25 @@ class EditPhotoViewModel(
             }
 
             is EditAction.Rotation -> {
-                _state.update { it.copy(rotation = action.previous % 360f) }
+                _state.update { it.copy(rotation = action.previous) }
             }
 
             is EditAction.Saturation -> {
                 _state.update { it.copy(saturation = action.previous) }
+            }
+
+            is EditAction.ResetAllEdits -> {
+                _state.update {
+                    it.copy(
+                        brightness = action.previousBrightness,
+                        contrast = action.previousContrast,
+                        saturation = action.previousSaturation,
+                        rotation = action.previousRotation,
+                        flipHorizontal = action.previousFlipHorizontal,
+                        flipVertical = action.previousFlipVertical,
+                        selectedPhotoFilter = action.previousFilter
+                    )
+                }
             }
         }
         applyAllEdits()
@@ -105,7 +119,7 @@ class EditPhotoViewModel(
             }
 
             is EditAction.FilterApplied -> {
-                _state.update { it.copy(selectedPhotoFilter = action.previous) }
+                _state.update { it.copy(selectedPhotoFilter = action.current) }
             }
 
             is EditAction.FlipHorizontal -> {
@@ -123,6 +137,20 @@ class EditPhotoViewModel(
 
             is EditAction.Saturation -> {
                 _state.update { it.copy(saturation = action.current) }
+            }
+
+            is EditAction.ResetAllEdits -> {
+                _state.update {
+                    it.copy(
+                        brightness = 0f,
+                        contrast = 1f,
+                        saturation = 1f,
+                        rotation = 0f,
+                        flipHorizontal = false,
+                        flipVertical = false,
+                        selectedPhotoFilter = PhotoFilter.NORMAL
+                    )
+                }
             }
         }
         applyAllEdits()
@@ -237,24 +265,21 @@ class EditPhotoViewModel(
     private fun onToggleFlipVertical() {
         val prev = _state.value.flipVertical
         editHistoryManager.push(EditAction.FlipVertical(prev))
-        _state.update { it.copy(flipVertical = prev) }
+        _state.update { it.copy(flipVertical = !prev) }
         applyAllEdits()
     }
 
     private fun onResetAllEdits() {
         val current = _state.value
-        editHistoryManager.push(EditAction.Brightness(previous = current.brightness, current = 0f))
-        editHistoryManager.push(EditAction.Contrast(previous = current.contrast, current = 1f))
-        editHistoryManager.push(EditAction.Saturation(previous = current.saturation, current = 1f))
-        editHistoryManager.push(EditAction.Rotation(previous = current.rotation, degrees = 0f))
-        editHistoryManager.push(EditAction.FlipHorizontal(flipped = current.flipHorizontal))
-        editHistoryManager.push(EditAction.FlipVertical(flipped = current.flipVertical))
-        editHistoryManager.push(
-            EditAction.FilterApplied(
-                previous = current.selectedPhotoFilter,
-                current = PhotoFilter.NORMAL
-            )
-        )
+        editHistoryManager.push(EditAction.ResetAllEdits(
+            previousBrightness = current.brightness,
+            previousContrast = current.contrast,
+            previousSaturation = current.saturation,
+            previousFilter = current.selectedPhotoFilter,
+            previousFlipHorizontal = current.flipHorizontal,
+            previousFlipVertical = current.flipVertical,
+            previousRotation = current.rotation
+        ))
         _state.update {
             it.copy(
                 brightness = 0f,
@@ -262,7 +287,7 @@ class EditPhotoViewModel(
                 saturation = 1f,
                 rotation = 0f,
                 flipHorizontal = false,
-                flipVertical = false
+                flipVertical = false, selectedPhotoFilter = PhotoFilter.NORMAL
             )
         }
         applyAllEdits()

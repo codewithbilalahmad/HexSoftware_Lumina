@@ -12,4 +12,13 @@ sealed interface EditAction {
     data class FlipVertical(val flipped: Boolean) : EditAction
 
     data class FilterApplied(val previous: PhotoFilter, val current: PhotoFilter) : EditAction
+    data class ResetAllEdits(
+        val previousBrightness: Float,
+        val previousContrast: Float,
+        val previousSaturation: Float,
+        val previousRotation: Float,
+        val previousFlipHorizontal: Boolean,
+        val previousFlipVertical: Boolean,
+        val previousFilter: PhotoFilter
+    ) : EditAction
 }
