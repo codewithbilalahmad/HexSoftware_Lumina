@@ -16,7 +16,9 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import androidx.compose.ui.unit.sp
 import com.muhammad.lumina.domain.model.EditedPhoto
+import com.muhammad.lumina.domain.model.EmojiLayer
 import com.muhammad.lumina.domain.model.PhotoFilter
 import com.muhammad.lumina.domain.repository.ImageUtilsRepository
 import kotlinx.coroutines.CoroutineScope
@@ -502,6 +504,7 @@ class ImageUtilsRepositoryImp(
         flipVertical: Boolean,
         flipHorizontal: Boolean,
         filter: PhotoFilter,
+        emojiLayers : List<EmojiLayer>
     ): Bitmap {
         val safeBrightness = brightness.coerceIn(-100f, 100f)
         val safeContrast = contrast.coerceIn(0.2f, 3f)
@@ -554,12 +557,19 @@ class ImageUtilsRepositoryImp(
         val srcRect = RectF(0f, 0f, bitmap.width.toFloat(), bitmap.height.toFloat())
         val dstRect = RectF()
         matrix.mapRect(dstRect, srcRect)
-
         val dstWidth = dstRect.width().roundToInt().coerceAtLeast(1)
         val dstHeight = dstRect.height().roundToInt().coerceAtLeast(1)
 
         val outBitmap = Bitmap.createBitmap(dstWidth, dstHeight, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(outBitmap)
+
+        emojiLayers.forEach { layer ->
+            paint.textSize = 40.sp.value * layer.scale
+            canvas.save()
+            canvas.rotate(layer.rotation,layer.offset.x, layer.offset.y)
+            canvas.drawText(layer.emoji, layer.offset.x, layer.offset.y, paint)
+            canvas.restore()
+        }
 
         val drawMatrix = Matrix(matrix).apply {
             postTranslate(-dstRect.left, -dstRect.top)

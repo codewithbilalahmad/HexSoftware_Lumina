@@ -85,4 +85,14 @@
     <string name="bloom">Bloom</string>
     <string name="velvet">Velvet</string>
     <string name="noir_fade">Noir</string>
+    <string name="smileys_and_people"><![CDATA[Smileys & People]]></string>
+    <string name="animals_and_nature"><![CDATA[Animals & Nature]]></string>
+    <string name="food_and_drink"><![CDATA[Food & Drink]]></string>
+    <string name="activity">Activity</string>
+    <string name="activity_and_sports"><![CDATA[Activity & Sports]]></string>
+    <string name="travel_and_places"><![CDATA[Travel & Places]]></string>
+    <string name="objects">Objects</string>
+    <string name="symbols">Symbols</string>
+    <string name="flags">Flags</string>
+    <string name="emoji">Emoji</string>
 </resources>

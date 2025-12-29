@@ -33,7 +33,7 @@ import com.muhammad.lumina.presentation.components.AppSlider
 @Composable
 fun EditPhotoControls(
     modifier: Modifier = Modifier,
-    brightness: Float,
+    brightness: Float,onToggleEmojiPickerBottomSheet : () -> Unit,
     contrast: Float,
     saturation: Float, originalBitmap: Bitmap?, selectedPhotoFilter: PhotoFilter,
     onBrightnessChange: (Float) -> Unit, onPhotoFilterSelected: (PhotoFilter) -> Unit,
@@ -161,6 +161,9 @@ fun EditPhotoControls(
                     isSelected = isSelected,
                     onClick = { feature ->
                         onSelectFeature(feature)
+                        if(feature == EditPhotoFeature.Emoji){
+                            onToggleEmojiPickerBottomSheet()
+                        }
                     })
             }
         }

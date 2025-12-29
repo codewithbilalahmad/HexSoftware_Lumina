@@ -14,6 +14,7 @@ sealed interface EditPhotoAction{
     data object OnResetAllEdits : EditPhotoAction
     data class OnSelectEditFeature(val feature: EditPhotoFeature) : EditPhotoAction
     data object OnToggleSavePhotoToGalleryDialog : EditPhotoAction
+    data object OnToggleEmojiPickerBottomSheet : EditPhotoAction
     data object OnSaveImageToGallery : EditPhotoAction
     data object OnToggleExitEditingDialog : EditPhotoAction
     data object OnConfirmExitEditing: EditPhotoAction

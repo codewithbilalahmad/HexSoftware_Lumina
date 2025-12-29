@@ -56,7 +56,12 @@ class EditPhotoViewModel(
             is EditPhotoAction.OnSetPhotoFilter -> onSetPhotoFilter(action.filter)
             EditPhotoAction.OnRedoEdit -> onRedoEdit()
             EditPhotoAction.OnUndoEdit -> onUndoEdit()
+            EditPhotoAction.OnToggleEmojiPickerBottomSheet -> onToggleEmojiPickerBottomSheet()
         }
+    }
+
+    private fun onToggleEmojiPickerBottomSheet() {
+        _state.update { it.copy(showEmojiPickerBottomSheet = !it.showEmojiPickerBottomSheet) }
     }
 
     private fun onUndoEdit() {
@@ -320,7 +325,8 @@ class EditPhotoViewModel(
             saturation = state.saturation,
             rotation = state.rotation,
             flipVertical = state.flipVertical,
-            flipHorizontal = state.flipHorizontal, filter = state.selectedPhotoFilter
+            flipHorizontal = state.flipHorizontal, filter = state.selectedPhotoFilter, emojiLayers = state.emojiLayers
+
         )
 
         _state.update { it.copy(editedBitmap = edited) }
