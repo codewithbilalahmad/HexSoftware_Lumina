@@ -8,6 +8,7 @@ import com.muhammad.lumina.R
 enum class EditPhotoFeature(val icon : Int, @get:StringRes val  label : Int) {
     Filters(icon = R.drawable.ic_filters, label = R.string.filters),
     Emoji(icon = R.drawable.ic_emoji, label = R.string.emoji),
+    Text(icon = R.drawable.ic_text, label = R.string.text),
     Brightness(icon = R.drawable.ic_brightness, label = R.string.brightness),
     Contrast(icon = R.drawable.ic_contrast, label = R.string.contrast),
     Saturation(icon = R.drawable.ic_saturation, label = R.string.saturation),

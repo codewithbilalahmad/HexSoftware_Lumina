@@ -35,6 +35,7 @@ fun EditPhotoControls(
     modifier: Modifier = Modifier,
     brightness: Float,onToggleEmojiPickerBottomSheet : () -> Unit,
     contrast: Float,
+    onAddEditText : () -> Unit,
     saturation: Float, originalBitmap: Bitmap?, selectedPhotoFilter: PhotoFilter,
     onBrightnessChange: (Float) -> Unit, onPhotoFilterSelected: (PhotoFilter) -> Unit,
     onContrastChange: (Float) -> Unit,
@@ -161,8 +162,10 @@ fun EditPhotoControls(
                     isSelected = isSelected,
                     onClick = { feature ->
                         onSelectFeature(feature)
-                        if(feature == EditPhotoFeature.Emoji){
-                            onToggleEmojiPickerBottomSheet()
+                        when(feature){
+                            EditPhotoFeature.Emoji -> onToggleEmojiPickerBottomSheet()
+                            EditPhotoFeature.Text -> onAddEditText()
+                            else -> Unit
                         }
                     })
             }

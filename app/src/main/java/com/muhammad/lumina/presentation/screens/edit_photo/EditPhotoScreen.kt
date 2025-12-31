@@ -12,6 +12,7 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -49,6 +50,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.res.stringResource
@@ -64,6 +66,7 @@ import com.muhammad.lumina.domain.model.EditPhotoFeature
 import com.muhammad.lumina.domain.model.PhotoFilter
 import com.muhammad.lumina.presentation.components.AppAlertDialog
 import com.muhammad.lumina.presentation.components.TransparentGridBackground
+import com.muhammad.lumina.presentation.screens.edit_photo.components.DraggableContainer
 import com.muhammad.lumina.presentation.screens.edit_photo.components.EditPhotoControls
 import com.muhammad.lumina.presentation.screens.edit_photo.components.EmojiPickerBottomSheet
 import com.muhammad.lumina.utils.ObserveAsEvents
@@ -104,7 +107,13 @@ fun EditPhotoScreen(
             }
         }
     })
-    Scaffold(modifier = Modifier.fillMaxSize(), snackbarHost = {
+    Scaffold(modifier = Modifier
+        .fillMaxSize()
+        .pointerInput(Unit) {
+            detectTapGestures {
+                viewModel.onAction(EditPhotoAction.OnTapOutsideSelectedChild)
+            }
+        }, snackbarHost = {
         SnackbarHost(snackbarHostState)
     }, topBar = {
         CenterAlignedTopAppBar(
@@ -182,6 +191,8 @@ fun EditPhotoScreen(
                 viewModel.onAction(EditPhotoAction.OnSetPhotoFilter(filter))
             }, onToggleEmojiPickerBottomSheet = {
                 viewModel.onAction(EditPhotoAction.OnToggleEmojiPickerBottomSheet)
+            }, onAddEditText = {
+                viewModel.onAction(EditPhotoAction.OnAddTextClick)
             },
             originalBitmap = state.originalBitmap
         )
@@ -209,9 +220,39 @@ fun EditPhotoScreen(
                 Box {
                     Image(
                         bitmap = imageBitmap,
-                        modifier = Modifier.then(if (editBoxSize.width > editBoxSize.height) Modifier.fillMaxHeight() else Modifier.fillMaxWidth()),
+                        modifier = Modifier
+                            .then(if (editBoxSize.width > editBoxSize.height) Modifier.fillMaxHeight() else Modifier.fillMaxWidth())
+                            .onSizeChanged { size ->
+                                viewModel.onAction(EditPhotoAction.OnEditPhotoSizeChange(size))
+                            },
                         contentScale = if (editBoxSize.width > editBoxSize.height) ContentScale.FillHeight else ContentScale.FillWidth,
                         contentDescription = null
+                    )
+                    DraggableContainer(
+                        children = state.children,
+                        onChildClick = { id ->
+                            viewModel.onAction(EditPhotoAction.OnSelectChild(id))
+                        },
+                        onChildDoubleClick = { id ->
+                            viewModel.onAction(EditPhotoAction.OnEditChildText(id))
+                        },
+                        onChildDeleteClick = { id ->
+                            viewModel.onAction(EditPhotoAction.OnDeleteChild(id))
+                        },
+                        onChildTextChange = { id, text ->
+                            viewModel.onAction(EditPhotoAction.OnEditTextChange(id, text))
+                        },
+                        onChildTransformChange = { id, offset, scale, rotation ->
+                            viewModel.onAction(
+                                EditPhotoAction.OnChildTransformChange(
+                                    id = id,
+                                    offset = offset,
+                                    scale = scale,
+                                    rotation = rotation
+                                )
+                            )
+                        }, modifier = Modifier.matchParentSize(),
+                        childInteractionState = state.childInteractionState
                     )
                     if (state.selectedPhotoFilter != PhotoFilter.NORMAL) {
                         Box(
@@ -349,7 +390,9 @@ fun EditPhotoScreen(
     }
     EmojiPickerBottomSheet(
         showEmojiPickerBottomSheet = state.showEmojiPickerBottomSheet,
-        onPickEmoji = {}, emojiMap = state.emojiMap,
+        onPickEmoji = { emoji ->
+            viewModel.onAction(EditPhotoAction.OnAddEmojiClick(emoji.emoji))
+        }, emojiMap = state.emojiMap,
         onDismiss = {
             viewModel.onAction(EditPhotoAction.OnToggleEmojiPickerBottomSheet)
         })

@@ -50,8 +50,7 @@ fun EditFeatureItem(
         animationSpec = MaterialTheme.motionScheme.fastEffectsSpec(),
         label = "contentColor"
     )
-    val shape =
-        if (isSelected) MaterialShapes.Cookie9Sided.toShape() else MaterialShapes.Circle.toShape()
+    val shape = if (isSelected) MaterialShapes.Cookie9Sided.toShape() else MaterialShapes.Circle.toShape()
     val fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
     Column(
         modifier = modifier

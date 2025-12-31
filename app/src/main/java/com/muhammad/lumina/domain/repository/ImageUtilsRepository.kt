@@ -3,7 +3,6 @@ package com.muhammad.lumina.domain.repository
 import android.graphics.Bitmap
 import android.net.Uri
 import com.muhammad.lumina.domain.model.EditedPhoto
-import com.muhammad.lumina.domain.model.EmojiLayer
 import com.muhammad.lumina.domain.model.PhotoFilter
 import kotlinx.coroutines.flow.StateFlow
 import java.io.OutputStream
@@ -19,8 +18,7 @@ interface ImageUtilsRepository {
         rotation: Float,
         flipVertical: Boolean,
         flipHorizontal: Boolean,
-        filter : PhotoFilter,
-        emojiLayers : List<EmojiLayer>
+        filter : PhotoFilter
     ): Bitmap
 
     fun saveBitmapToStream(bitmap: Bitmap, out: OutputStream)

@@ -1,11 +1,14 @@
 package com.muhammad.lumina.presentation.screens.edit_photo
 
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.unit.IntSize
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
 import com.muhammad.lumina.data.EditHistoryManager
 import com.muhammad.lumina.domain.model.EditPhotoFeature
+import com.muhammad.lumina.domain.model.Child
 import com.muhammad.lumina.domain.model.PhotoFilter
 import com.muhammad.lumina.domain.repository.ImageUtilsRepository
 import com.muhammad.lumina.presentation.navigation.Destinations
@@ -18,7 +21,10 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.Float
+import kotlin.uuid.ExperimentalUuidApi
+import kotlin.uuid.Uuid
 
+@OptIn(ExperimentalUuidApi::class)
 class EditPhotoViewModel(
     savedStateHandle: SavedStateHandle,
     private val editHistoryManager: EditHistoryManager,
@@ -57,6 +63,101 @@ class EditPhotoViewModel(
             EditPhotoAction.OnRedoEdit -> onRedoEdit()
             EditPhotoAction.OnUndoEdit -> onUndoEdit()
             EditPhotoAction.OnToggleEmojiPickerBottomSheet -> onToggleEmojiPickerBottomSheet()
+            is EditPhotoAction.OnAddEmojiClick -> onAddEmojiClick(action.emoji)
+            is EditPhotoAction.OnDeleteChild -> onDeleteChild(action.id)
+            is EditPhotoAction.OnEditPhotoSizeChange -> onEditPhotoSizeChange(action.size)
+            is EditPhotoAction.OnChildTransformChange -> onChildTransformChange(
+                id = action.id,
+                offset = action.offset,
+                scale = action.scale,
+                rotation = action.rotation
+            )
+            is EditPhotoAction.OnSelectChild -> onSelectChild(action.id)
+            EditPhotoAction.OnTapOutsideSelectedChild -> onTapOutsideSelectedChild()
+            EditPhotoAction.OnAddTextClick -> onAddTextClick()
+            is EditPhotoAction.OnEditTextChange -> onEditTextChange(id = action.id, text = action.text)
+            is EditPhotoAction.OnEditChildText -> onEditChildText(action.id)
+        }
+    }
+    private fun onEditChildText(id : String){
+        _state.update { it.copy(childInteractionState = ChildInteractionState.Editing(id)) }
+    }
+    private fun onEditTextChange(id : String, text : String){
+        _state.update {
+            it.copy(children = it.children.map { child ->
+                if(child.id == id){
+                    child.copy(text = text)
+                } else child
+            })
+        }
+    }
+    private fun onChildTransformChange(
+        id: String,
+        offset: Offset,
+        scale: Float,
+        rotation: Float,
+    ) {
+        _state.update {
+            val (width, height) = it.editPhotoSize
+            it.copy(
+                children = it.children.map { child ->
+                    if (child.id == id) {
+                        child.copy(
+                            offsetRatioX = offset.x / width,
+                            offsetRatioY = offset.y / height,
+                            rotation = rotation,
+                            scale = scale
+                        )
+                    } else child
+                }
+            )
+        }
+    }
+
+    private fun onTapOutsideSelectedChild() {
+        _state.update { it.copy(childInteractionState = ChildInteractionState.None) }
+    }
+
+    private fun onEditPhotoSizeChange(size: IntSize) {
+        _state.update { it.copy(editPhotoSize = size) }
+    }
+
+    private fun onDeleteChild(id: String) {
+        _state.update {
+            it.copy(
+                children = it.children.filter { child -> child.id != id }
+            )
+        }
+    }
+
+    private fun onSelectChild(id: String) {
+        _state.update {
+            it.copy(childInteractionState = ChildInteractionState.Selected(id))
+        }
+    }
+
+    private fun onAddEmojiClick(emoji: String) {
+        val emoji = Child(
+            id = Uuid.random().toString(),
+            isEmoji = true,
+            text = emoji, offsetRatioX = 0.35f, offsetRatioY = 0.35f
+        )
+        _state.update {
+            it.copy(
+                children = it.children + emoji, showEmojiPickerBottomSheet = false
+            )
+        }
+    }
+    private fun onAddTextClick() {
+        val text = Child(
+            id = Uuid.random().toString(),
+            isEmoji = false,
+            text = "Tap to Edit!", offsetRatioX = 0.35f, offsetRatioY = 0.35f
+        )
+        _state.update {
+            it.copy(
+                children = it.children + text
+            )
         }
     }
 
@@ -276,15 +377,17 @@ class EditPhotoViewModel(
 
     private fun onResetAllEdits() {
         val current = _state.value
-        editHistoryManager.push(EditAction.ResetAllEdits(
-            previousBrightness = current.brightness,
-            previousContrast = current.contrast,
-            previousSaturation = current.saturation,
-            previousFilter = current.selectedPhotoFilter,
-            previousFlipHorizontal = current.flipHorizontal,
-            previousFlipVertical = current.flipVertical,
-            previousRotation = current.rotation
-        ))
+        editHistoryManager.push(
+            EditAction.ResetAllEdits(
+                previousBrightness = current.brightness,
+                previousContrast = current.contrast,
+                previousSaturation = current.saturation,
+                previousFilter = current.selectedPhotoFilter,
+                previousFlipHorizontal = current.flipHorizontal,
+                previousFlipVertical = current.flipVertical,
+                previousRotation = current.rotation
+            )
+        )
         _state.update {
             it.copy(
                 brightness = 0f,
@@ -325,8 +428,8 @@ class EditPhotoViewModel(
             saturation = state.saturation,
             rotation = state.rotation,
             flipVertical = state.flipVertical,
-            flipHorizontal = state.flipHorizontal, filter = state.selectedPhotoFilter, emojiLayers = state.emojiLayers
-
+            flipHorizontal = state.flipHorizontal,
+            filter = state.selectedPhotoFilter
         )
 
         _state.update { it.copy(editedBitmap = edited) }
