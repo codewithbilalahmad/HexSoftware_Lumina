@@ -24,9 +24,13 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
@@ -107,96 +111,131 @@ fun EditPhotoScreen(
             }
         }
     })
-    Scaffold(modifier = Modifier
-        .fillMaxSize()
-        .pointerInput(Unit) {
-            detectTapGestures {
-                viewModel.onAction(EditPhotoAction.OnTapOutsideSelectedChild)
-            }
-        }, snackbarHost = {
-        SnackbarHost(snackbarHostState)
-    }, topBar = {
-        CenterAlignedTopAppBar(
-            title = {
-                Text(text = stringResource(R.string.edit_photo))
-            },
-            navigationIcon = {
-                IconButton(onClick = {
-                    viewModel.onAction(EditPhotoAction.OnToggleExitEditingDialog)
-                }) {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.ic_cancel),
-                        contentDescription = null
-                    )
+    Scaffold(
+        modifier = Modifier
+            .fillMaxSize()
+            .pointerInput(Unit) {
+                detectTapGestures {
+                    viewModel.onAction(EditPhotoAction.OnTapOutsideSelectedChild)
                 }
-            }, actions = {
-                IconButton(onClick = {
-                    viewModel.onAction(EditPhotoAction.OnToggleSavePhotoToGalleryDialog)
-                }) {
-                    Icon(
-                        imageVector = ImageVector.vectorResource(R.drawable.ic_save),
-                        contentDescription = null
-                    )
-                }
-            },
-            colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
-        )
-    }, bottomBar = {
-        EditPhotoControls(
-            modifier = Modifier
-                .fillMaxWidth()
-                .background(MaterialTheme.colorScheme.background)
-                .navigationBarsPadding(),
-            onSelectFeature = { feature ->
-                viewModel.onAction(EditPhotoAction.OnSelectEditFeature(feature))
-                when (feature) {
-                    EditPhotoFeature.RotateLeft -> {
-                        viewModel.onAction(EditPhotoAction.OnRotate(-30f))
+            }, snackbarHost = {
+            SnackbarHost(snackbarHostState)
+        }, topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(text = stringResource(R.string.edit_photo))
+                },
+                navigationIcon = {
+                    IconButton(onClick = {
+                        viewModel.onAction(EditPhotoAction.OnToggleExitEditingDialog)
+                    }) {
+                        Icon(
+                            imageVector = ImageVector.vectorResource(R.drawable.ic_cancel),
+                            contentDescription = null
+                        )
                     }
-
-                    EditPhotoFeature.RotateRight -> {
-                        viewModel.onAction(EditPhotoAction.OnRotate(30f))
+                }, actions = {
+                    Box {
+                        IconButton(onClick = {
+                            viewModel.onAction(EditPhotoAction.OnToggleEditMenuDropdown)
+                        }) {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(R.drawable.ic_menu),
+                                contentDescription = null
+                            )
+                        }
+                        DropdownMenu(
+                            expanded = state.showEditMenuDropdown,
+                            containerColor = MaterialTheme.colorScheme.background,
+                            tonalElevation = 4.dp,
+                            shadowElevation = 4.dp,
+                            shape = RoundedCornerShape(16.dp),
+                            onDismissRequest = {
+                                viewModel.onAction(EditPhotoAction.OnToggleEditMenuDropdown)
+                            }
+                        ) {
+                            DropdownMenuItem(text = {
+                                Text(text = stringResource(R.string.save))
+                            }, leadingIcon = {
+                                Icon(
+                                    imageVector = ImageVector.vectorResource(R.drawable.ic_save),
+                                    contentDescription = null
+                                )
+                            }, onClick = {
+                                viewModel.onAction(EditPhotoAction.OnToggleSavePhotoToGalleryDialog)
+                            })
+                            HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.surfaceVariant)
+                            DropdownMenuItem(text = {
+                                Text(text = stringResource(R.string.share))
+                            }, leadingIcon = {
+                                Icon(
+                                    imageVector = ImageVector.vectorResource(R.drawable.ic_share),
+                                    contentDescription = null
+                                )
+                            }, onClick = {
+                                viewModel.onAction(EditPhotoAction.OnToggleEditMenuDropdown)
+                            })
+                        }
                     }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
+            )
+        }, bottomBar = {
+            EditPhotoControls(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.background)
+                    .navigationBarsPadding(),
+                onSelectFeature = { feature ->
+                    viewModel.onAction(EditPhotoAction.OnSelectEditFeature(feature))
+                    when (feature) {
+                        EditPhotoFeature.RotateLeft -> {
+                            viewModel.onAction(EditPhotoAction.OnRotate(-30f))
+                        }
 
-                    EditPhotoFeature.FlipHorizontal -> {
-                        viewModel.onAction(EditPhotoAction.OnToggleFlipHorizontal)
+                        EditPhotoFeature.RotateRight -> {
+                            viewModel.onAction(EditPhotoAction.OnRotate(30f))
+                        }
+
+                        EditPhotoFeature.FlipHorizontal -> {
+                            viewModel.onAction(EditPhotoAction.OnToggleFlipHorizontal)
+                        }
+
+                        EditPhotoFeature.FlipVertical -> {
+                            viewModel.onAction(EditPhotoAction.OnToggleFlipVertical)
+                        }
+
+                        EditPhotoFeature.Reset -> {
+                            viewModel.onAction(EditPhotoAction.OnResetAllEdits)
+                        }
+
+                        else -> Unit
                     }
-
-                    EditPhotoFeature.FlipVertical -> {
-                        viewModel.onAction(EditPhotoAction.OnToggleFlipVertical)
-                    }
-
-                    EditPhotoFeature.Reset -> {
-                        viewModel.onAction(EditPhotoAction.OnResetAllEdits)
-                    }
-
-                    else -> Unit
-                }
-            },
-            saturation = state.saturation,
-            brightness = state.brightness,
-            contrast = state.contrast,
-            onSaturationChange = { newValue ->
-                viewModel.onAction(EditPhotoAction.OnSetSaturation(newValue))
-            },
-            onContrastChange = { newValue ->
-                viewModel.onAction(EditPhotoAction.OnSetContrast(newValue))
-            },
-            onBrightnessChange = { newValue ->
-                viewModel.onAction(EditPhotoAction.OnSetBrightness(newValue))
-            },
-            selectedFeature = state.selectedFeature,
-            selectedPhotoFilter = state.selectedPhotoFilter,
-            onPhotoFilterSelected = { filter ->
-                viewModel.onAction(EditPhotoAction.OnSetPhotoFilter(filter))
-            }, onToggleEmojiPickerBottomSheet = {
-                viewModel.onAction(EditPhotoAction.OnToggleEmojiPickerBottomSheet)
-            }, onAddEditText = {
-                viewModel.onAction(EditPhotoAction.OnAddTextClick)
-            },
-            originalBitmap = state.originalBitmap
-        )
-    }) { paddingValues ->
+                },
+                saturation = state.saturation,
+                brightness = state.brightness,
+                contrast = state.contrast,
+                onSaturationChange = { newValue ->
+                    viewModel.onAction(EditPhotoAction.OnSetSaturation(newValue))
+                },
+                onContrastChange = { newValue ->
+                    viewModel.onAction(EditPhotoAction.OnSetContrast(newValue))
+                },
+                onBrightnessChange = { newValue ->
+                    viewModel.onAction(EditPhotoAction.OnSetBrightness(newValue))
+                },
+                selectedFeature = state.selectedFeature,
+                selectedPhotoFilter = state.selectedPhotoFilter,
+                onPhotoFilterSelected = { filter ->
+                    viewModel.onAction(EditPhotoAction.OnSetPhotoFilter(filter))
+                }, onToggleEmojiPickerBottomSheet = {
+                    viewModel.onAction(EditPhotoAction.OnToggleEmojiPickerBottomSheet)
+                }, onAddEditText = {
+                    viewModel.onAction(EditPhotoAction.OnAddTextClick)
+                },
+                originalBitmap = state.originalBitmap
+            )
+        }) { paddingValues ->
         Box(
             modifier = Modifier
                 .fillMaxSize()

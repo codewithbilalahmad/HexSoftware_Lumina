@@ -77,8 +77,14 @@ class EditPhotoViewModel(
             EditPhotoAction.OnAddTextClick -> onAddTextClick()
             is EditPhotoAction.OnEditTextChange -> onEditTextChange(id = action.id, text = action.text)
             is EditPhotoAction.OnEditChildText -> onEditChildText(action.id)
+            EditPhotoAction.OnToggleEditMenuDropdown -> onToggleEditMenuDropdown()
         }
     }
+
+    private fun onToggleEditMenuDropdown() {
+        _state.update { it.copy(showEditMenuDropdown = !it.showEditMenuDropdown) }
+    }
+
     private fun onEditChildText(id : String){
         _state.update { it.copy(childInteractionState = ChildInteractionState.Editing(id)) }
     }

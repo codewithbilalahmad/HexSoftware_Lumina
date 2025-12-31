@@ -96,4 +96,5 @@
     <string name="flags">Flags</string>
     <string name="emoji">Emoji</string>
     <string name="text">Text</string>
+    <string name="share">Share</string>
 </resources>

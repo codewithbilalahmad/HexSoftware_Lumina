@@ -39,6 +39,7 @@ data class EditPhotoState(
         EmojiType.OBJECTS to OBJECTS,
         EmojiType.SYMBOLS to SYMBOLS
     ),
+    val showEditMenuDropdown : Boolean = false,
     val childInteractionState: ChildInteractionState = ChildInteractionState.None,
     val children: List<Child> = emptyList(),
     val editPhotoSize: IntSize = IntSize.Zero,
