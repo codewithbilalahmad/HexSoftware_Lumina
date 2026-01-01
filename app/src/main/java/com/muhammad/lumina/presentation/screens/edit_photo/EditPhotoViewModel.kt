@@ -11,9 +11,11 @@ import com.muhammad.lumina.domain.model.EditPhotoFeature
 import com.muhammad.lumina.domain.model.Child
 import com.muhammad.lumina.domain.model.PhotoFilter
 import com.muhammad.lumina.domain.repository.ImageUtilsRepository
+import com.muhammad.lumina.domain.repository.PhotoExporter
 import com.muhammad.lumina.presentation.navigation.Destinations
 import com.muhammad.lumina.utils.SnackbarEvent
 import com.muhammad.lumina.utils.decodeBitmapFromPath
+import com.muhammad.lumina.utils.imageBitmapToByteArray
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,6 +31,7 @@ class EditPhotoViewModel(
     savedStateHandle: SavedStateHandle,
     private val editHistoryManager: EditHistoryManager,
     private val imageUtilsRepository: ImageUtilsRepository,
+    private val photoExporter: PhotoExporter,
 ) : ViewModel() {
 
     private val photo = savedStateHandle.toRoute<Destinations.EditPhotoScreen>().photo
@@ -72,12 +75,41 @@ class EditPhotoViewModel(
                 scale = action.scale,
                 rotation = action.rotation
             )
+
             is EditPhotoAction.OnSelectChild -> onSelectChild(action.id)
             EditPhotoAction.OnTapOutsideSelectedChild -> onTapOutsideSelectedChild()
             EditPhotoAction.OnAddTextClick -> onAddTextClick()
-            is EditPhotoAction.OnEditTextChange -> onEditTextChange(id = action.id, text = action.text)
+            is EditPhotoAction.OnEditTextChange -> onEditTextChange(
+                id = action.id,
+                text = action.text
+            )
+
             is EditPhotoAction.OnEditChildText -> onEditChildText(action.id)
             EditPhotoAction.OnToggleEditMenuDropdown -> onToggleEditMenuDropdown()
+            EditPhotoAction.OnShareEditedPhoto -> onShareEditedPhoto()
+        }
+    }
+
+    private fun onShareEditedPhoto() {
+        viewModelScope.launch {
+            val editedBitmap = _state.value.editedBitmap ?: return@launch
+            val backgroundImageBytes = imageBitmapToByteArray(editedBitmap)
+            _state.update { it.copy(isSharingEditedPhoto = true) }
+            photoExporter.exportEditedPhoto(
+                backgroundImageBytes = backgroundImageBytes,
+                children = state.value.children,
+                editPhotoSize = state.value.editPhotoSize
+            ).onSuccess { filePath ->
+                imageUtilsRepository.shareEditedImage(filePath)
+            }.onFailure { e ->
+                e.printStackTrace()
+                _state.update {
+                    it.copy(
+                        isSharingEditedPhoto = false,
+                    )
+                }
+                _snackbarEvents.send(SnackbarEvent.ShowSnackbar(message = "Failed to Share Image"))
+            }
         }
     }
 
@@ -85,18 +117,20 @@ class EditPhotoViewModel(
         _state.update { it.copy(showEditMenuDropdown = !it.showEditMenuDropdown) }
     }
 
-    private fun onEditChildText(id : String){
+    private fun onEditChildText(id: String) {
         _state.update { it.copy(childInteractionState = ChildInteractionState.Editing(id)) }
     }
-    private fun onEditTextChange(id : String, text : String){
+
+    private fun onEditTextChange(id: String, text: String) {
         _state.update {
             it.copy(children = it.children.map { child ->
-                if(child.id == id){
+                if (child.id == id) {
                     child.copy(text = text)
                 } else child
             })
         }
     }
+
     private fun onChildTransformChange(
         id: String,
         offset: Offset,
@@ -154,6 +188,7 @@ class EditPhotoViewModel(
             )
         }
     }
+
     private fun onAddTextClick() {
         val text = Child(
             id = Uuid.random().toString(),
@@ -294,17 +329,33 @@ class EditPhotoViewModel(
     private fun onSaveImageToGallery() {
         viewModelScope.launch {
             val editedBitmap = _state.value.editedBitmap ?: return@launch
+            val backgroundImageBytes = imageBitmapToByteArray(editedBitmap)
             _state.update { it.copy(isSavingImageToGallery = true) }
-            val uri = imageUtilsRepository.saveImageInExternalStorage(bitmap = editedBitmap)
-            if (uri != null) {
-                _state.update {
-                    it.copy(
-                        isSavingImageToGallery = false,
-                        showSaveImageToGalleryDialog = false
-                    )
+            photoExporter.exportEditedPhoto(
+                backgroundImageBytes = backgroundImageBytes,
+                children = state.value.children,
+                editPhotoSize = state.value.editPhotoSize
+            ).onSuccess { filePath ->
+                val uri = imageUtilsRepository.saveImageInExternalStorage(filePath)
+                if (uri != null) {
+                    _state.update {
+                        it.copy(
+                            isSavingImageToGallery = false,
+                            showSaveImageToGalleryDialog = false
+                        )
+                    }
+                    _snackbarEvents.send(SnackbarEvent.ShowSnackbar(message = "Image Saved to Gallery"))
+                } else {
+                    _state.update {
+                        it.copy(
+                            isSavingImageToGallery = false,
+                            showSaveImageToGalleryDialog = false
+                        )
+                    }
+                    _snackbarEvents.send(SnackbarEvent.ShowSnackbar(message = "Failed to Save Image"))
                 }
-                _snackbarEvents.send(SnackbarEvent.ShowSnackbar(message = "Image Saved in Gallery"))
-            } else {
+            }.onFailure { e ->
+                e.printStackTrace()
                 _state.update {
                     it.copy(
                         isSavingImageToGallery = false,

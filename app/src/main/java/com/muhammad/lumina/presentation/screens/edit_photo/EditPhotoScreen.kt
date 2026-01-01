@@ -162,6 +162,7 @@ fun EditPhotoScreen(
                                     contentDescription = null
                                 )
                             }, onClick = {
+                                viewModel.onAction(EditPhotoAction.OnToggleEditMenuDropdown)
                                 viewModel.onAction(EditPhotoAction.OnToggleSavePhotoToGalleryDialog)
                             })
                             HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.surfaceVariant)
@@ -174,6 +175,7 @@ fun EditPhotoScreen(
                                 )
                             }, onClick = {
                                 viewModel.onAction(EditPhotoAction.OnToggleEditMenuDropdown)
+                                viewModel.onAction(EditPhotoAction.OnShareEditedPhoto)
                             })
                         }
                     }

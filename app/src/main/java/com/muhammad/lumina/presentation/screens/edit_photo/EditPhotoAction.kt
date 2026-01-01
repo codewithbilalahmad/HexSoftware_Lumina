@@ -36,6 +36,7 @@ sealed interface EditPhotoAction{
         val rotation : Float
     ) : EditPhotoAction
     data object OnToggleEditMenuDropdown : EditPhotoAction
+    data object OnShareEditedPhoto : EditPhotoAction
     data object OnUndoEdit : EditPhotoAction
     data object OnRedoEdit : EditPhotoAction
 }

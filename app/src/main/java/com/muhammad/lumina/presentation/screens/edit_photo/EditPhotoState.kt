@@ -43,4 +43,5 @@ data class EditPhotoState(
     val childInteractionState: ChildInteractionState = ChildInteractionState.None,
     val children: List<Child> = emptyList(),
     val editPhotoSize: IntSize = IntSize.Zero,
+    val isSharingEditedPhoto : Boolean = false
 )

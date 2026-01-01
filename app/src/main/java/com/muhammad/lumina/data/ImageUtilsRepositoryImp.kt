@@ -4,8 +4,10 @@ import android.annotation.SuppressLint
 import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
+import android.content.Intent
 import android.database.ContentObserver
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.Canvas
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
@@ -16,20 +18,24 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import androidx.core.content.FileProvider
 import com.muhammad.lumina.domain.model.EditedPhoto
 import com.muhammad.lumina.domain.model.PhotoFilter
 import com.muhammad.lumina.domain.repository.ImageUtilsRepository
+import com.muhammad.lumina.domain.repository.PhotoExporter
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.io.File
 import java.io.OutputStream
 import kotlin.math.roundToInt
 
 class ImageUtilsRepositoryImp(
     private val context: Context,
     private val scope: CoroutineScope,
+    private val photoExporter: PhotoExporter
 ) : ImageUtilsRepository {
     private val _editedPhotos = MutableStateFlow<List<EditedPhoto>>(emptyList())
     override val editedPhotos = _editedPhotos.asStateFlow()
@@ -572,8 +578,9 @@ class ImageUtilsRepositoryImp(
         out.close()
     }
 
-    override fun saveImageInExternalStorage(bitmap: Bitmap): Uri? {
+    override fun saveImageInExternalStorage(filePath : String): Uri? {
         return try {
+            val bitmap = BitmapFactory.decodeFile(filePath)
             val displayName = "Edtited_${System.currentTimeMillis()}.jpg"
             val contentValues = ContentValues().apply {
                 put(MediaStore.Images.Media.DISPLAY_NAME, displayName)
@@ -601,6 +608,23 @@ class ImageUtilsRepositoryImp(
             e.printStackTrace()
             null
         }
+    }
+
+    override fun shareEditedImage(filePath: String) {
+        val file = File(filePath)
+        val uri = FileProvider.getUriForFile(
+            context,"${context.packageName}.fileprovider",file
+        )
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "image/jpeg"
+            putExtra(Intent.EXTRA_STREAM, uri)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        val chooser = Intent.createChooser(intent,"Share Image").apply {
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        context.startActivity(chooser)
     }
 
     override fun getImagesFromLuminaFolder(): List<EditedPhoto> {

@@ -22,6 +22,7 @@ interface ImageUtilsRepository {
     ): Bitmap
 
     fun saveBitmapToStream(bitmap: Bitmap, out: OutputStream)
-    fun saveImageInExternalStorage(bitmap: Bitmap): Uri?
+    fun saveImageInExternalStorage(filePath : String): Uri?
+    fun shareEditedImage(filePath : String)
     fun getImagesFromLuminaFolder(): List<EditedPhoto>
 }

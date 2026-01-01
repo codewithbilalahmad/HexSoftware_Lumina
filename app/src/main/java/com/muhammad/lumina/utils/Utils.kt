@@ -1,6 +1,15 @@
 package com.muhammad.lumina.utils
 
+import android.content.res.Resources
+import android.graphics.Bitmap
+import android.util.TypedValue
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.unit.TextUnit
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 
 
 fun createBeautifulGradient(): List<Color> {
@@ -16,4 +25,23 @@ fun createBeautifulGradient(): List<Color> {
         Color(0xFFE57373), // Soft Red
     )
     return colorPool.shuffled().take(3)
+}
+
+fun TextUnit.toPx() : Float{
+    val metrics = Resources.getSystem().displayMetrics
+    return TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_SP,
+        this.value,
+        metrics
+    )
+}
+
+suspend fun imageBitmapToByteArray(bitmap : Bitmap) : ByteArray{
+    return withContext(Dispatchers.IO){
+        val imageBitmap = bitmap.asImageBitmap()
+        val andriodBitmap = imageBitmap.asAndroidBitmap()
+        val outputStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100,outputStream )
+        outputStream.toByteArray()
+    }
 }
