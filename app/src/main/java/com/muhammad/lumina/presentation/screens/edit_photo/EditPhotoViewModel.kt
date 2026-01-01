@@ -6,6 +6,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.toRoute
+import com.muhammad.lumina.R
 import com.muhammad.lumina.data.EditHistoryManager
 import com.muhammad.lumina.domain.model.EditPhotoFeature
 import com.muhammad.lumina.domain.model.Child
@@ -108,7 +109,12 @@ class EditPhotoViewModel(
                         isSharingEditedPhoto = false,
                     )
                 }
-                _snackbarEvents.send(SnackbarEvent.ShowSnackbar(message = "Failed to Share Image"))
+                _snackbarEvents.send(
+                    SnackbarEvent.ShowSnackbar(
+                        message = "Failed to Share Image",
+                        icon = R.drawable.ic_cancel
+                    )
+                )
             }
         }
     }
@@ -344,7 +350,7 @@ class EditPhotoViewModel(
                             showSaveImageToGalleryDialog = false
                         )
                     }
-                    _snackbarEvents.send(SnackbarEvent.ShowSnackbar(message = "Image Saved to Gallery"))
+                    _snackbarEvents.send(SnackbarEvent.ShowSnackbar(message = "Image Saved to Gallery", icon = R.drawable.ic_save))
                 } else {
                     _state.update {
                         it.copy(
@@ -352,7 +358,7 @@ class EditPhotoViewModel(
                             showSaveImageToGalleryDialog = false
                         )
                     }
-                    _snackbarEvents.send(SnackbarEvent.ShowSnackbar(message = "Failed to Save Image"))
+                    _snackbarEvents.send(SnackbarEvent.ShowSnackbar(message = "Failed to Save Image", icon = R.drawable.ic_cancel))
                 }
             }.onFailure { e ->
                 e.printStackTrace()
@@ -362,7 +368,7 @@ class EditPhotoViewModel(
                         showSaveImageToGalleryDialog = false
                     )
                 }
-                _snackbarEvents.send(SnackbarEvent.ShowSnackbar(message = "Failed to Save Image"))
+                _snackbarEvents.send(SnackbarEvent.ShowSnackbar(message = "Failed to Save Image", icon = R.drawable.ic_save))
             }
         }
     }

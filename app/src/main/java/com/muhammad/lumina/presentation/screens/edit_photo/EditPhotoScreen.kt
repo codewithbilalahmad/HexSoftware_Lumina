@@ -36,6 +36,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -67,9 +68,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.muhammad.lumina.R
 import com.muhammad.lumina.domain.model.EditPhotoFeature
+import com.muhammad.lumina.domain.model.GradientSnackbarVisuals
 import com.muhammad.lumina.domain.model.PhotoFilter
 import com.muhammad.lumina.presentation.components.AppAlertDialog
 import com.muhammad.lumina.presentation.components.TransparentGridBackground
+import com.muhammad.lumina.presentation.components.snackbar.GradientSnackbarHost
 import com.muhammad.lumina.presentation.screens.edit_photo.components.DraggableContainer
 import com.muhammad.lumina.presentation.screens.edit_photo.components.EditPhotoControls
 import com.muhammad.lumina.presentation.screens.edit_photo.components.EmojiPickerBottomSheet
@@ -104,8 +107,13 @@ fun EditPhotoScreen(
             is SnackbarEvent.ShowSnackbar -> {
                 scope.launch {
                     snackbarHostState.showSnackbar(
-                        message = event.message,
-                        duration = event.duration
+                        visuals = GradientSnackbarVisuals(
+                            icon = event.icon,
+                            message = event.message,
+                            duration = event.duration,
+                            actionLabel = event.actionLabel,
+                            withDismissAction = false
+                        )
                     )
                 }
             }
@@ -119,7 +127,7 @@ fun EditPhotoScreen(
                     viewModel.onAction(EditPhotoAction.OnTapOutsideSelectedChild)
                 }
             }, snackbarHost = {
-            SnackbarHost(snackbarHostState)
+            GradientSnackbarHost(snackbarHostState)
         }, topBar = {
             CenterAlignedTopAppBar(
                 title = {
@@ -165,7 +173,10 @@ fun EditPhotoScreen(
                                 viewModel.onAction(EditPhotoAction.OnToggleEditMenuDropdown)
                                 viewModel.onAction(EditPhotoAction.OnToggleSavePhotoToGalleryDialog)
                             })
-                            HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.surfaceVariant)
+                            HorizontalDivider(
+                                thickness = 1.dp,
+                                color = MaterialTheme.colorScheme.surfaceVariant
+                            )
                             DropdownMenuItem(text = {
                                 Text(text = stringResource(R.string.share))
                             }, leadingIcon = {
