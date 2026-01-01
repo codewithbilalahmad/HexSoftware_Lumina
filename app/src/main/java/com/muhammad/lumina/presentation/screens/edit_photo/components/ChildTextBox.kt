@@ -131,7 +131,7 @@ fun ChildTextBox(
                     }), contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.ic_cancel),
+                    imageVector = ImageVector.vectorResource(R.drawable.ic_delete),
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),
                     tint = Color.White

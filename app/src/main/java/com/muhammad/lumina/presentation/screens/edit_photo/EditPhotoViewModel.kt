@@ -350,7 +350,12 @@ class EditPhotoViewModel(
                             showSaveImageToGalleryDialog = false
                         )
                     }
-                    _snackbarEvents.send(SnackbarEvent.ShowSnackbar(message = "Image Saved to Gallery", icon = R.drawable.ic_save))
+                    _snackbarEvents.send(
+                        SnackbarEvent.ShowSnackbar(
+                            message = "Image Saved to Gallery",
+                            icon = R.drawable.ic_save
+                        )
+                    )
                 } else {
                     _state.update {
                         it.copy(
@@ -358,7 +363,12 @@ class EditPhotoViewModel(
                             showSaveImageToGalleryDialog = false
                         )
                     }
-                    _snackbarEvents.send(SnackbarEvent.ShowSnackbar(message = "Failed to Save Image", icon = R.drawable.ic_cancel))
+                    _snackbarEvents.send(
+                        SnackbarEvent.ShowSnackbar(
+                            message = "Failed to Save Image",
+                            icon = R.drawable.ic_cancel
+                        )
+                    )
                 }
             }.onFailure { e ->
                 e.printStackTrace()
@@ -368,7 +378,12 @@ class EditPhotoViewModel(
                         showSaveImageToGalleryDialog = false
                     )
                 }
-                _snackbarEvents.send(SnackbarEvent.ShowSnackbar(message = "Failed to Save Image", icon = R.drawable.ic_save))
+                _snackbarEvents.send(
+                    SnackbarEvent.ShowSnackbar(
+                        message = "Failed to Save Image",
+                        icon = R.drawable.ic_save
+                    )
+                )
             }
         }
     }
@@ -458,7 +473,10 @@ class EditPhotoViewModel(
                 saturation = 1f,
                 rotation = 0f,
                 flipHorizontal = false,
-                flipVertical = false, selectedPhotoFilter = PhotoFilter.NORMAL
+                flipVertical = false,
+                selectedPhotoFilter = PhotoFilter.NORMAL,
+                children = emptyList(),
+                childInteractionState = ChildInteractionState.None
             )
         }
         applyAllEdits()

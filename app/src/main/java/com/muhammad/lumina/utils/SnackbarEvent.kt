@@ -8,6 +8,6 @@ sealed interface SnackbarEvent {
         val icon : Int,
         val actionLabel: String? = null,
         val actionClick : () -> Unit = {},
-        val duration: SnackbarDuration = SnackbarDuration.Long
+        val duration: SnackbarDuration = SnackbarDuration.Short
     ) : SnackbarEvent
 }
