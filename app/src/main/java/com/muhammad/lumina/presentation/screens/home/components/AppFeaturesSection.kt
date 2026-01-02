@@ -53,7 +53,7 @@ import kotlinx.coroutines.launch
 fun AppFeaturesSection(
     modifier: Modifier = Modifier,
     features: List<AppFeature>,
-    blurRadius: Dp = 16.dp,
+    blurRadius: Dp = 32.dp,
 ) {
     val density = LocalDensity.current
     val scope = rememberCoroutineScope()

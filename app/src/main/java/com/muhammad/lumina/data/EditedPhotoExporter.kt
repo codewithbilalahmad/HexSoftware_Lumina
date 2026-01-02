@@ -40,7 +40,8 @@ class EditedPhotoExporter(
         var bitmap: Bitmap? = null
         var outputBitmap: Bitmap? = null
         try {
-            bitmap = BitmapFactory.decodeByteArray(backgroundImageBytes, 0, backgroundImageBytes.size)
+            bitmap =
+                BitmapFactory.decodeByteArray(backgroundImageBytes, 0, backgroundImageBytes.size)
             outputBitmap = renderChildren(
                 background = bitmap, children = children, editPhotoSize = editPhotoSize
             )
@@ -82,7 +83,49 @@ class EditedPhotoExporter(
         scaledChildren.forEach { scaledChild ->
             drawText(canvas, scaledChild)
         }
+        drawWatermark(canvas = canvas, bitmapWidth = output.width, bitmapHeight = output.height)
         output
+    }
+
+    private fun drawWatermark(
+        canvas: Canvas,
+        bitmapWidth: Int,
+        bitmapHeight: Int, text: String = "Edited by Lumina",
+    ) {
+        val typeface = ResourcesCompat.getFont(context, R.font.bricolage) ?: Typeface.DEFAULT_BOLD
+        val textSize = bitmapWidth * 0.028f
+        val paddingX = textSize * 0.9f
+        val paddingY = textSize * 0.6f
+        val margin = bitmapWidth * 0.04f
+
+        val textPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            this.typeface = typeface
+            this.textSize = textSize
+            color = Color.WHITE
+            alpha = 210
+        }
+        val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.BLACK
+            alpha = 120
+        }
+        val textWidth = textPaint.measureText(text)
+        val fontMetrics = textPaint.fontMetrics
+        val textHeight = fontMetrics.bottom - fontMetrics.top
+
+        val boxWidth = textWidth + paddingX * 2
+        val boxHeight = textHeight + paddingY * 2
+
+        val left = bitmapWidth - boxWidth - margin
+        val top = bitmapHeight- boxHeight - margin
+        val right = left + boxWidth
+        val bottom = top + boxHeight
+
+        canvas.drawRoundRect(
+            left, top, right, bottom, boxHeight / 2f, boxHeight / 2f, bgPaint
+        )
+        val textX = left + paddingX
+        val textY = top + paddingY - fontMetrics.top
+        canvas.drawText(text, textX, textY, textPaint)
     }
 
     private fun drawText(canvas: Canvas, scaledChild: ScaledChild) {
@@ -103,29 +146,38 @@ class EditedPhotoExporter(
             color = Color.WHITE
         }
         val strokeLayout = StaticLayout.Builder.obtain(
-            scaledChild.text, 0, scaledChild.text.length, TextPaint(strokePaint),scaledChild.constraintWidth
+            scaledChild.text,
+            0,
+            scaledChild.text.length,
+            TextPaint(strokePaint),
+            scaledChild.constraintWidth
         ).setAlignment(Layout.Alignment.ALIGN_CENTER).setIncludePad(false).build()
         val fillLayout = StaticLayout.Builder.obtain(
-            scaledChild.text, 0, scaledChild.text.length, TextPaint(fillPaint), scaledChild.constraintWidth
+            scaledChild.text,
+            0,
+            scaledChild.text.length,
+            TextPaint(fillPaint),
+            scaledChild.constraintWidth
         ).setAlignment(Layout.Alignment.ALIGN_CENTER).setIncludePad(false).build()
         val textHeight = strokeLayout.height.toFloat()
-        val textWidth = (0 until strokeLayout.lineCount).maxOfOrNull { strokeLayout.getLineWidth(it) } ?: 0f
+        val textWidth =
+            (0 until strokeLayout.lineCount).maxOfOrNull { strokeLayout.getLineWidth(it) } ?: 0f
 
         val boxWidth = textWidth + scaledChild.textPaddingX * 2
         val boxHeight = textHeight + scaledChild.textPaddingY * 2
 
-        val centerX = scaledChild.scaledOffset.x + boxWidth /2f
+        val centerX = scaledChild.scaledOffset.x + boxWidth / 2f
         val centerY = scaledChild.scaledOffset.y + boxHeight / 2f
 
-        canvas.withTranslation(centerX, centerY){
+        canvas.withTranslation(centerX, centerY) {
             scale(scaledChild.scale, scaledChild.scale)
             rotate(scaledChild.rotation)
 
-            val textCenteringOffset = (scaledChild.constraintWidth - textWidth) /2f
+            val textCenteringOffset = (scaledChild.constraintWidth - textWidth) / 2f
 
             translate(
-                 -boxWidth /2f + scaledChild.textPaddingX - textCenteringOffset,
-                -boxHeight /2f + scaledChild.textPaddingY
+                -boxWidth / 2f + scaledChild.textPaddingX - textCenteringOffset,
+                -boxHeight / 2f + scaledChild.textPaddingY
             )
             strokeLayout.draw(this)
             fillLayout.draw(this)
