@@ -98,8 +98,10 @@ fun LuminaTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable
     val activity = (context as Activity)
     val window = activity.window
     SideEffect{
-        WindowCompat.getInsetsController(window,view).isAppearanceLightStatusBars = !darkTheme
-        WindowCompat.getInsetsController(window,view).isAppearanceLightStatusBars = !darkTheme
+        WindowCompat.getInsetsController(window,view).apply {
+            isAppearanceLightStatusBars = !darkTheme
+            isAppearanceLightNavigationBars = !darkTheme
+        }
     }
     val colorScheme = if (darkTheme) darkColorScheme else lightColorScheme
     MaterialExpressiveTheme(

@@ -7,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.muhammad.lumina.presentation.screens.edit_photo.EditPhotoScreen
 import com.muhammad.lumina.presentation.screens.home.HomeScreen
+import com.muhammad.lumina.presentation.screens.view_photo.ViewPhotoScreen
 
 @Composable
 fun AppNavigation(navHostController: NavHostController) {
@@ -21,6 +22,13 @@ fun AppNavigation(navHostController: NavHostController) {
             }
             composable<Destinations.EditPhotoScreen> {
                 EditPhotoScreen(navHostController = navHostController)
+            }
+            composable<Destinations.ViewPhotoScreen> {
+                ViewPhotoScreen(
+                    navHostController = navHostController,
+                    sharedTransitionScope = this@SharedTransitionLayout,
+                    animatedVisibilityScope = this@composable
+                )
             }
         }
     }

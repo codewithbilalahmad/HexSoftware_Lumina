@@ -37,19 +37,19 @@ fun EditedPhotoItem(
                 bitmap = bit.asImageBitmap(),
                 contentDescription = null,
                 modifier = modifier
-                    .clip(MaterialShapes.Cookie9Sided.toShape())
+                    .clip(MaterialShapes.Square.toShape())
                     .border(
                         width = 1.5.dp,
                         brush = Brush.linearGradient(colors = editedPhoto.colors),
-                        shape = MaterialShapes.Cookie9Sided.toShape()
+                        shape = MaterialShapes.Square.toShape()
                     )
                     .sharedBounds(
                         sharedContentState = rememberSharedContentState(
-                            key = "editedImage_${editedPhoto.id}"
+                            key = "editedImage_${editedPhoto.uri}"
                         ),
                         animatedVisibilityScope = animatedVisibilityScope,
                         boundsTransform = { _, _ ->
-                            tween(durationMillis = 500, easing = FastOutLinearInEasing)
+                            tween(durationMillis = 300, easing = FastOutLinearInEasing)
                         })
                     .clickable {
                         onClick()

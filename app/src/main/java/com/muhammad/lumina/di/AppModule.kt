@@ -8,6 +8,7 @@ import com.muhammad.lumina.domain.repository.ImageUtilsRepository
 import com.muhammad.lumina.domain.repository.PhotoExporter
 import com.muhammad.lumina.presentation.screens.edit_photo.EditPhotoViewModel
 import com.muhammad.lumina.presentation.screens.home.HomeViewModel
+import com.muhammad.lumina.presentation.screens.view_photo.ViewPhotoViewModel
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.bind
@@ -23,4 +24,5 @@ val appModule = module {
     singleOf(::ImageUtilsRepositoryImp).bind<ImageUtilsRepository>()
     viewModelOf(::HomeViewModel)
     viewModelOf(::EditPhotoViewModel)
+    viewModelOf(::ViewPhotoViewModel)
 }

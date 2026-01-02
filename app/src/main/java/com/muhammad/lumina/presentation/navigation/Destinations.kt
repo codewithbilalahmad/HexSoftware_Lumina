@@ -8,4 +8,7 @@ sealed interface Destinations {
 
     @Serializable
     data class EditPhotoScreen(val photo: String) : Destinations
+
+    @Serializable
+    data class ViewPhotoScreen(val photo : String) : Destinations
 }

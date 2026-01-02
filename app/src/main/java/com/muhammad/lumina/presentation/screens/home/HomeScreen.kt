@@ -6,7 +6,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.calculateStartPadding
@@ -41,7 +40,6 @@ import com.muhammad.lumina.presentation.screens.home.components.AppIntroSection
 import com.muhammad.lumina.presentation.screens.home.components.EditedPhotosSection
 import com.muhammad.lumina.presentation.screens.home.components.ImageStackSection
 import com.muhammad.lumina.presentation.screens.home.components.PickPhotoSection
-import com.muhammad.lumina.presentation.screens.home.components.SelectedEditedPhotoSection
 import org.koin.androidx.compose.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -60,108 +58,102 @@ fun HomeScreen(
                 viewModel.onAction(HomeAction.OnPhotoSelected(uri.toString()))
             }
         }
-    Box(modifier = Modifier.fillMaxSize()) {
-        Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
-            CenterAlignedTopAppBar(
-                title = {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.ic_logo),
-                            contentDescription = null, modifier = Modifier.size(30.dp)
-                        )
-                        Text(text = stringResource(R.string.app_name))
-                    }
-                },
-                actions = {
-                    IconButton(onClick = {}) {
-                        Icon(
-                            imageVector = ImageVector.vectorResource(R.drawable.ic_settings),
-                            contentDescription = null
-                        )
-                    }
-                },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
-            )
-        }) { paddingValues ->
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(
-                    start = paddingValues.calculateStartPadding(layoutDirection),
-                    end = paddingValues.calculateStartPadding(layoutDirection),
-                    top = paddingValues.calculateTopPadding() + 8.dp,
-                    bottom = paddingValues.calculateBottomPadding() + 32.dp
-                ),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-            ) {
-                item("ImageStackSection") {
-                    ImageStackSection(
-                        modifier = Modifier
-                            .fillMaxWidth().padding(horizontal = 16.dp)
-                            .animateItem()
+    Scaffold(modifier = Modifier.fillMaxSize(), topBar = {
+        CenterAlignedTopAppBar(
+            title = {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_logo),
+                        contentDescription = null, modifier = Modifier.size(30.dp)
+                    )
+                    Text(text = stringResource(R.string.app_name))
+                }
+            },
+            actions = {
+                IconButton(onClick = {}) {
+                    Icon(
+                        imageVector = ImageVector.vectorResource(R.drawable.ic_settings),
+                        contentDescription = null
                     )
                 }
-                item("AppIntroSection") {
-                    AppIntroSection(
-                        modifier = Modifier
-                            .fillMaxWidth().padding(horizontal = 16.dp)
-                            .animateItem()
-                    )
-                }
-                if (state.editedPhotos.isNotEmpty()) {
-                    item("EditedPhotosSection") {
-                        EditedPhotosSection(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .animateItem(),
-                            onEditedPhotoClick = { editedPhoto ->
-                                viewModel.onAction(HomeAction.OnEditedPhotoSelected(editedPhoto))
-                            },
-                            animatedVisibilityScope = animatedVisibilityScope,
-                            sharedTransitionScope = sharedTransitionScope,
-                            editedPhotos = state.editedPhotos
-                        )
-                    }
-                }
-                item("AppFeaturesSection") {
-                    AppFeaturesSection(
-                        features = state.appFeatures,
+            },
+            colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
+        )
+    }) { paddingValues ->
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(
+                start = paddingValues.calculateStartPadding(layoutDirection),
+                end = paddingValues.calculateStartPadding(layoutDirection),
+                top = paddingValues.calculateTopPadding() + 8.dp,
+                bottom = paddingValues.calculateBottomPadding() + 32.dp
+            ),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            item("ImageStackSection") {
+                ImageStackSection(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .animateItem()
+                )
+            }
+            item("AppIntroSection") {
+                AppIntroSection(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .animateItem()
+                )
+            }
+            if (state.editedPhotos.isNotEmpty()) {
+                item("EditedPhotosSection") {
+                    EditedPhotosSection(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .animateItem()
+                            .animateItem(),
+                        onEditedPhotoClick = { editedPhoto ->
+                            navHostController.navigate(Destinations.ViewPhotoScreen(editedPhoto.uri))
+                        },
+                        animatedVisibilityScope = animatedVisibilityScope,
+                        sharedTransitionScope = sharedTransitionScope,
+                        editedPhotos = state.editedPhotos
                     )
                 }
-                item("PickPhotoSection") {
-                    PickPhotoSection(
-                        modifier = Modifier
-                            .fillMaxWidth().padding(horizontal = 16.dp)
-                            .animateItem(),
-                        selectedPhoto = state.selectedPhotoBitmap,
-                        onPickImage = {
-                            imagePickerLauncher.launch(
-                                PickVisualMediaRequest(
-                                    ActivityResultContracts.PickVisualMedia.ImageOnly
-                                )
+            }
+            item("AppFeaturesSection") {
+                AppFeaturesSection(
+                    features = state.appFeatures,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .animateItem()
+                )
+            }
+            item("PickPhotoSection") {
+                PickPhotoSection(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .animateItem(),
+                    selectedPhoto = state.selectedPhotoBitmap,
+                    onPickImage = {
+                        imagePickerLauncher.launch(
+                            PickVisualMediaRequest(
+                                ActivityResultContracts.PickVisualMedia.ImageOnly
                             )
-                        },
-                        onRemoveImage = {
-                            viewModel.onAction(HomeAction.OnClearPhoto)
-                        },
-                        onEditImageClick = {
-                            viewModel.onAction(HomeAction.OnClearPhoto)
-                            navHostController.navigate(Destinations.EditPhotoScreen(state.selectedPhoto.orEmpty()))
-                        })
-                }
+                        )
+                    },
+                    onRemoveImage = {
+                        viewModel.onAction(HomeAction.OnClearPhoto)
+                    },
+                    onEditImageClick = {
+                        viewModel.onAction(HomeAction.OnClearPhoto)
+                        navHostController.navigate(Destinations.EditPhotoScreen(state.selectedPhoto.orEmpty()))
+                    })
             }
         }
-        SelectedEditedPhotoSection(
-            onUnSelectedEditedPhoto = {
-                viewModel.onAction(HomeAction.OnEditedPhotoSelected(null))
-            }, modifier = Modifier.fillMaxSize(),
-            selectedEditedPhoto = state.selectedEditedPhoto,
-            sharedTransitionScope = sharedTransitionScope,
-            animatedVisibilityScope = animatedVisibilityScope
-        )
     }
 }
