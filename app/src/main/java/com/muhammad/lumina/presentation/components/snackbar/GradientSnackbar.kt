@@ -46,7 +46,7 @@ import kotlin.math.abs
 @Composable
 fun GradientSnackbar(
     modifier: Modifier = Modifier,
-    onDismiss: () -> Unit, dismissThreshold: Dp = 120.dp,
+    onDismiss: () -> Unit, dismissThreshold: Dp = 100.dp,
     snackbarVisuals: GradientSnackbarVisuals, onActionClick: () -> Unit = {},
 ) {
     val density = LocalDensity.current
@@ -62,7 +62,7 @@ fun GradientSnackbar(
             offsetX.snapTo(offsetX.value + delta)
         }
     }
-    val dismissAlpha = (1f - (abs(offsetX.value) / dismissThresholdPx)).coerceIn(0f, 1f)
+    val dismissAlpha = (1f - (abs(offsetX.value) / dismissThresholdPx)).coerceIn(0.5f, 1f)
     val scale by animateFloatAsState(
         targetValue = 1f,
         animationSpec = tween(durationMillis = 200, easing = FastOutSlowInEasing),

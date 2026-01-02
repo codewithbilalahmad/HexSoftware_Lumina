@@ -12,7 +12,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun TransparentGridBackground(
     modifier: Modifier = Modifier,
-    cellSize: Dp = 15.dp,
+    cellSize: Dp = 10.dp,
     lightColor: Color = Color(0xFFE0E0E0),
     darkColor: Color = Color(0xFFBDBDBD),
 ) {

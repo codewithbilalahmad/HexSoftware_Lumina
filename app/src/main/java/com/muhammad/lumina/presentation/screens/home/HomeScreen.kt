@@ -7,7 +7,9 @@ import androidx.compose.animation.AnimatedVisibilityScope
 import androidx.compose.animation.SharedTransitionScope
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.calculateStartPadding
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -26,6 +28,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
@@ -49,6 +52,7 @@ fun HomeScreen(
     animatedVisibilityScope: AnimatedVisibilityScope,
     viewModel: HomeViewModel = koinViewModel(),
 ) {
+    val layoutDirection = LocalLayoutDirection.current
     val state by viewModel.state.collectAsStateWithLifecycle()
     val imagePickerLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
@@ -83,23 +87,25 @@ fun HomeScreen(
             )
         }) { paddingValues ->
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                modifier = Modifier.fillMaxSize(), contentPadding = PaddingValues(
+                    start = paddingValues.calculateStartPadding(layoutDirection),
+                    end = paddingValues.calculateStartPadding(layoutDirection),
+                    top = paddingValues.calculateTopPadding() + 8.dp,
+                    bottom = paddingValues.calculateBottomPadding() + 32.dp
+                ),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
-                contentPadding = paddingValues
             ) {
                 item("ImageStackSection") {
                     ImageStackSection(
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .fillMaxWidth().padding(horizontal = 16.dp)
                             .animateItem()
                     )
                 }
                 item("AppIntroSection") {
                     AppIntroSection(
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .fillMaxWidth().padding(horizontal = 16.dp)
                             .animateItem()
                     )
                 }
@@ -129,7 +135,7 @@ fun HomeScreen(
                 item("PickPhotoSection") {
                     PickPhotoSection(
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .fillMaxWidth().padding(horizontal = 16.dp)
                             .animateItem(),
                         selectedPhoto = state.selectedPhotoBitmap,
                         onPickImage = {

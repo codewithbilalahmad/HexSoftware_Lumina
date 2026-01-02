@@ -155,7 +155,9 @@ fun EditPhotoControls(
             modifier = Modifier.fillMaxWidth(), contentPadding = PaddingValues(8.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            items(EditPhotoFeature.entries, key = { it.ordinal }) { editFeature ->
+            items(EditPhotoFeature.entries, key = { it.ordinal }, contentType = {
+                "editFeature_${it.ordinal}"
+            }) { editFeature ->
                 val isSelected = selectedFeature == editFeature
                 EditFeatureItem(
                     feature = editFeature,
