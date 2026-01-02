@@ -21,7 +21,12 @@ class ViewPhotoViewModel(
     fun onAction(action: ViewPhotoAction){
         when(action){
             is ViewPhotoAction.OnLoadPhoto -> onLoadPhoto(action.photo)
+            ViewPhotoAction.OnToggleOptionsDropdown -> onToggleOptionsDropdown()
         }
+    }
+
+    private fun onToggleOptionsDropdown() {
+        _state.update { it.copy(showOptionsDropdown = !it.showOptionsDropdown) }
     }
 
     private fun onLoadPhoto(photo: String) {

@@ -4,5 +4,6 @@ import android.graphics.Bitmap
 
 data class ViewPhotoState(
     val photoBitmap : Bitmap?=null,
-    val photoUrl : String = ""
+    val photoUrl : String = "",
+    val showOptionsDropdown : Boolean = false
 )
