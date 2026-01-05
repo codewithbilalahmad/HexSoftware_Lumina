@@ -4,8 +4,6 @@ import android.content.res.Resources
 import android.graphics.Bitmap
 import android.util.TypedValue
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asAndroidBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.unit.TextUnit
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -38,8 +36,6 @@ fun TextUnit.toPx() : Float{
 
 suspend fun imageBitmapToByteArray(bitmap : Bitmap) : ByteArray{
     return withContext(Dispatchers.IO){
-        val imageBitmap = bitmap.asImageBitmap()
-        val andriodBitmap = imageBitmap.asAndroidBitmap()
         val outputStream = ByteArrayOutputStream()
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100,outputStream )
         outputStream.toByteArray()

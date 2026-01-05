@@ -88,9 +88,12 @@ class EditPhotoViewModel(
             is EditPhotoAction.OnEditChildText -> onEditChildText(action.id)
             EditPhotoAction.OnToggleEditMenuDropdown -> onToggleEditMenuDropdown()
             EditPhotoAction.OnShareEditedPhoto -> onShareEditedPhoto()
+            EditPhotoAction.OnToggleCelebrations -> onToggleCelebrations()
         }
     }
-
+    private fun onToggleCelebrations(){
+        _state.update { it.copy(showCelebrations = !it.showCelebrations) }
+    }
     private fun onShareEditedPhoto() {
         viewModelScope.launch {
             val editedBitmap = _state.value.editedBitmap ?: return@launch
@@ -101,6 +104,7 @@ class EditPhotoViewModel(
                 children = state.value.children,
                 editPhotoSize = state.value.editPhotoSize
             ).onSuccess { filePath ->
+                onAction(EditPhotoAction.OnToggleCelebrations)
                 imageUtilsRepository.shareEditedImage(filePath)
             }.onFailure { e ->
                 e.printStackTrace()
@@ -356,6 +360,7 @@ class EditPhotoViewModel(
                             icon = R.drawable.ic_save
                         )
                     )
+                    onAction(EditPhotoAction.OnToggleCelebrations)
                 } else {
                     _state.update {
                         it.copy(
