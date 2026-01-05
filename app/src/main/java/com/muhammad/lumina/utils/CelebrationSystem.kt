@@ -31,9 +31,9 @@ class CelebrationSystem(private val onFinished: () -> Unit) {
             celebration.vx = sin(celebration.y * 0.01f + celebration.x * 0.005f) * 30f
             celebration.x += celebration.vx * deltaTime
             celebration.y += celebration.vy * deltaTime
-            celebration.rotation =
-                (celebration.rotation + celebration.rotationSpeed * deltaTime) % 360f
-            celebration.alpha = (height / celebration.y).coerceIn(0f, 1f)
+            celebration.rotation = (celebration.rotation + celebration.rotationSpeed * deltaTime) % 360f
+            val progress = (celebration.y / height).coerceIn(0f, 1f)
+            celebration.alpha = 1f - progress
             if (celebration.y > height + 20f || celebration.x < -20f || celebration.x > width + 20f) {
                 iterator.remove()
             }
@@ -64,7 +64,7 @@ class CelebrationSystem(private val onFinished: () -> Unit) {
             Celebration(
                 x = random.nextFloat() * width,
                 y = -30f,
-                vx = 0f, vy = random.nextFloat() * 150f + 50f,
+                vx = 0f, vy = random.nextFloat() * 150f + 100f,
                 size = size,
                 alpha = 1f,
                 rotation = random.nextFloat() * 360f,
