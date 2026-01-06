@@ -5,11 +5,14 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import com.muhammad.lumina.utils.CelebrationSystem
 
 @Composable
 fun CelebrationOverlay(modifier: Modifier = Modifier, isVisible : Boolean,onFinished : () -> Unit) {
     if(!isVisible) return
+    val hapticFeedback = LocalHapticFeedback.current
     BoxWithConstraints(modifier = modifier.fillMaxSize()){
         val width = constraints.maxWidth.toFloat()
         val height = constraints.maxHeight.toFloat()
@@ -19,6 +22,7 @@ fun CelebrationOverlay(modifier: Modifier = Modifier, isVisible : Boolean,onFini
             if(isVisible){
                 lastFrameTime = 0L
                 celebrationSystem.start(width)
+                hapticFeedback.performHapticFeedback(HapticFeedbackType.LongPress)
             }
         }
         Canvas(modifier = Modifier.fillMaxSize()) {

@@ -4,9 +4,13 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import com.muhammad.lumina.domain.model.Celebration
 import com.muhammad.lumina.domain.model.CelebrationType
+import kotlin.math.PI
+import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
 
@@ -31,9 +35,9 @@ class CelebrationSystem(private val onFinished: () -> Unit) {
             celebration.vx = sin(celebration.y * 0.01f + celebration.x * 0.005f) * 30f
             celebration.x += celebration.vx * deltaTime
             celebration.y += celebration.vy * deltaTime
-            celebration.rotation = (celebration.rotation + celebration.rotationSpeed * deltaTime) % 360f
-            val progress = (celebration.y / height).coerceIn(0f, 1f)
-            celebration.alpha = 1f - progress
+            celebration.rotation =
+                (celebration.rotation + celebration.rotationSpeed * deltaTime) % 360f
+            celebration.alpha = 1f - (celebration.y / height).coerceIn(0f, 1f)
             if (celebration.y > height + 20f || celebration.x < -20f || celebration.x > width + 20f) {
                 iterator.remove()
             }
@@ -46,8 +50,11 @@ class CelebrationSystem(private val onFinished: () -> Unit) {
 
     private fun spawnCelebration(width: Float) {
         val type = when {
-            random.nextFloat() < 0.3f -> CelebrationType.CIRCLE
-            random.nextFloat() < 0.6f -> CelebrationType.ROUNDED_RECT
+            random.nextFloat() < 0.1f -> CelebrationType.CIRCLE
+            random.nextFloat() < 0.25f -> CelebrationType.ROUNDED_RECT
+            random.nextFloat() < 0.45f -> CelebrationType.CONFETTI_LINE
+            random.nextFloat() < 0.55f -> CelebrationType.SNOW
+            random.nextFloat() < 0.75f -> CelebrationType.HEXAGON
             else -> CelebrationType.RECT
         }
         val celebrationColors = listOf(
@@ -64,12 +71,12 @@ class CelebrationSystem(private val onFinished: () -> Unit) {
             Celebration(
                 x = random.nextFloat() * width,
                 y = -30f,
-                vx = 0f, vy = random.nextFloat() * 150f + 100f,
+                vx = 0f, vy = random.nextFloat() * 180f + 100f,
                 size = size,
                 alpha = 1f,
                 rotation = random.nextFloat() * 360f,
                 color = celebrationColors.random(),
-                rotationSpeed = random.nextFloat() * 180f - 90f,
+                rotationSpeed = random.nextFloat() * 180f,
                 type = type
             )
         )
@@ -109,9 +116,51 @@ class CelebrationSystem(private val onFinished: () -> Unit) {
                             topLeft = Offset(-celebration.size / 2f, -celebration.size / 2f)
                         )
                     }
+
+                    CelebrationType.CONFETTI_LINE -> {
+                        drawScope.drawRect(
+                            color = color,
+                            size = Size(
+                                width = celebration.size * 0.35f,
+                                height = celebration.size * 1.2f
+                            ), topLeft = Offset(
+                                x = -celebration.size * 0.18f,
+                                y = -celebration.size * 0.7f
+                            )
+                        )
+                    }
+
+                    CelebrationType.SNOW -> {
+                        val arms = 12
+                        val armLength = celebration.size
+                        for (i in 0 until arms) {
+                            val angle = (i * 30 + celebration.rotation) * PI.toFloat() / 180f
+                            val endX = cos(angle) * armLength
+                            val endY = sin(angle) * armLength
+                            drawScope.drawLine(
+                                color = color, start = Offset.Zero, end = Offset(endX, endY),
+                                strokeWidth = 2f, cap = StrokeCap.Round
+                            )
+                        }
+                    }
+
+                    CelebrationType.HEXAGON ->{
+                        drawScope.drawHexagon(size = celebration.size , color = color)
+                    }
                 }
                 restore()
             }
         }
+    }
+    private fun DrawScope.drawHexagon(size : Float,color : Color){
+        val path = Path()
+        repeat(6){i ->
+            val angle = (PI / 3 * i - PI / 2).toFloat()
+            val x = cos(angle) * size
+            val y = sin(angle) * size
+            if(i == 0) path.moveTo(x, y) else path.lineTo(x, y)
+        }
+        path.close()
+        drawPath(path = path, color = color)
     }
 }

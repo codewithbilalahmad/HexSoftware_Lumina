@@ -4,5 +4,5 @@ import androidx.compose.runtime.Immutable
 
 @Immutable
 enum class CelebrationType {
-    CIRCLE, RECT, ROUNDED_RECT
+    CIRCLE, RECT, ROUNDED_RECT, CONFETTI_LINE, SNOW, HEXAGON
 }
